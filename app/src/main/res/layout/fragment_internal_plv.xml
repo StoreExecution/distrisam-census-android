@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    tools:context=".LocalityFragment">
+
+    <RelativeLayout
+        android:id="@+id/rlTinda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            android:src="@drawable/tinda_coca" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/tinda_logo_coca" />
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/ivContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rlTinda"
+        android:layout_alignParentRight="true"
+
+        >
+
+        <ImageView
+            android:id="@+id/ivInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:src="@drawable/ic_info"
+            android:tint="@color/colorAccent" />
+    </FrameLayout>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/llNavigation"
+        android:layout_below="@id/ivContainer"
+        android:layout_centerInParent="true"
+        android:layout_marginHorizontal="20dp"
+        android:background="@color/float_transparent"
+
+
+        >
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+
+                <LinearLayout
+                    android:layout_width="320dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:weightSum="10">
+
+
+                    <Button
+                        android:id="@+id/ivAddMetalRack"
+                        android:layout_width="300dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginVertical="10dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="1"
+
+                        android:background="@drawable/outline_simple"
+                        android:elevation="4dp"
+                        android:text="Ajouter des rack metalique"
+                        android:textColor="@color/colorAccent"
+
+                        />
+
+                    <co.lujun.androidtagview.TagContainerLayout
+                        android:id="@+id/tgMetalRack"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:layout_weight="9"
+                        android:padding="10dp"
+
+
+                        app:container_background_color="#fff"
+                        app:container_border_color="@color/colorWhite"
+                        app:horizontal_interval="10dp"
+                        app:tag_background_color="@color/colorAccent"
+                        app:tag_border_color="@color/colorAccent"
+                        app:tag_clickable="true"
+                        app:tag_text_color="@color/colorWhite"
+
+                        app:tag_text_size="15sp"
+                        app:tag_theme="none"
+                        app:vertical_interval="10dp" />
+
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="320dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:weightSum="10">
+
+
+                    <Button
+                        android:id="@+id/ivAddForexRack"
+                        android:layout_width="300dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginVertical="10dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/outline_simple"
+                        android:elevation="4dp"
+                        android:text="Ajouter des rack en forex"
+                        android:textColor="@color/colorAccent"
+
+                        />
+
+                    <co.lujun.androidtagview.TagContainerLayout
+                        android:id="@+id/tgForexRack"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:layout_weight="9"
+                        android:padding="10dp"
+
+
+                        app:container_background_color="#fff"
+                        app:container_border_color="@color/colorWhite"
+                        app:horizontal_interval="10dp"
+                        app:tag_background_color="@color/colorAccent"
+                        app:tag_border_color="@color/colorAccent"
+                        app:tag_clickable="true"
+                        app:tag_text_color="@color/colorWhite"
+
+                        app:tag_text_size="15sp"
+                        app:tag_theme="none"
+                        app:vertical_interval="10dp" />
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="320dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:weightSum="10">
+
+
+                    <Button
+                        android:id="@+id/ivAddWrapedLinear"
+                        android:layout_width="300dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginVertical="10dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/outline_simple"
+                        android:elevation="4dp"
+                        android:text="Ajouter des lineaire habillés"
+                        android:textColor="@color/colorAccent" />
+
+                    <co.lujun.androidtagview.TagContainerLayout
+                        android:id="@+id/tgWrapedLinear"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:layout_weight="9"
+                        android:padding="10dp"
+
+
+                        app:container_background_color="#fff"
+                        app:container_border_color="@color/colorWhite"
+                        app:horizontal_interval="10dp"
+                        app:tag_background_color="@color/colorAccent"
+                        app:tag_border_color="@color/colorAccent"
+                        app:tag_clickable="true"
+                        app:tag_text_color="@color/colorWhite"
+
+                        app:tag_text_size="15sp"
+                        app:tag_theme="none"
+                        app:vertical_interval="10dp" />
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="320dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:weightSum="10">
+
+
+                    <Button
+                        android:id="@+id/ivAddWrapedSkid"
+                        android:layout_width="300dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:layout_marginVertical="10dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/outline_simple"
+                        android:elevation="4dp"
+                        android:text="Ajouter des palettes habillés"
+                        android:textColor="@color/colorAccent" />
+
+                    <co.lujun.androidtagview.TagContainerLayout
+                        android:id="@+id/tgWrapedSkid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="0dp"
+                        android:layout_weight="9"
+                        android:padding="10dp"
+
+
+                        app:container_background_color="#fff"
+                        app:container_border_color="@color/colorWhite"
+                        app:horizontal_interval="10dp"
+                        app:tag_background_color="@color/colorAccent"
+                        app:tag_border_color="@color/colorAccent"
+                        app:tag_clickable="true"
+                        app:tag_text_color="@color/colorWhite"
+
+                        app:tag_text_size="15sp"
+                        app:tag_theme="none"
+                        app:vertical_interval="10dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="15dp"
+                    android:background="@drawable/outline_simple"
+
+                    android:gravity="center"
+                    android:orientation="vertical"
+
+                    android:visibility="gone">
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pack Combo Coca cola"
+                        android:textColor="@color/colorAccent"
+                        android:textSize="19sp"
+
+                        android:textStyle="bold" />
+
+
+                    <RadioGroup
+                        android:id="@+id/rgCombo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+
+                        <RadioButton
+                            android:id="@+id/rbComboYes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="10dp"
+                            android:text="Oui" />
+
+                        <RadioButton
+                            android:id="@+id/rbComboNo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="10dp"
+                            android:text="Non" />
+                    </RadioGroup>
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="Photos interieur"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/ivPhoto"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_marginTop="5dp"
+                    android:src="@drawable/photo_red" />
+
+
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+
+
+    <LinearLayout
+        android:id="@+id/llNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+
+        >
+
+        <ImageView
+            android:id="@+id/fabPrev"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/background_navigation_back"
+            android:src="@drawable/ic_arrow_back" />
+
+        <LinearLayout
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorWhite"
+
+            />
+
+        <ImageView
+            android:id="@+id/fabNext"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/background_navigation"
+            android:src="@drawable/ic_save" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    tools:context=".LocalityFragment">
+
+
+    <RelativeLayout
+        android:id="@+id/rlTinda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            android:src="@drawable/tinda_coca" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/tinda_logo_coca" />
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/rlTinda"
+        android:layout_marginHorizontal="20dp"
+        android:background="@color/float_transparent"
+
+
+        >
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Meilleur compagnie de livraison"
+                android:textColor="@color/colorAccent"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etDeliveryCompany"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginVertical="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edittext_background"
+                android:gravity="center"
+                android:hint="Meilleur compagnie de livraison" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+
+                    android:gravity="center"
+                    android:text="Votre avis sur  "
+                    android:textColor="@color/colorAccent"
+                    android:textSize="19sp"
+
+
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawableLeft="@drawable/cclogo"
+
+                    android:gravity="center"
+                    android:text="."
+                    android:textColor="@color/colorAccent"
+                    android:textSize="19sp"
+
+
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <com.hsalf.smileyrating.SmileyRating
+                android:id="@+id/smile_rating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="15dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+
+                    android:gravity="center"
+                    android:text="Classer "
+                    android:textColor="@color/colorAccent"
+                    android:textSize="19sp"
+
+
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawableLeft="@drawable/cclogo"
+
+                    android:gravity="center"
+                    android:text=" pour sa livraison"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="19sp"
+
+
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+
+            <Spinner
+                android:id="@+id/spRating"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="10dp"
+                android:layout_marginVertical="10dp"
+                android:entries="@array/rating"
+                android:background="@drawable/outline"
+
+                />
+
+            <TextView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:text="Points important dans la livraison ?"
+                android:textColor="@color/colorAccent"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+
+            <Button
+                android:id="@+id/btAddComment"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/outline_simple"
+
+                android:text="Ajouter des commentaires" />
+
+            <co.lujun.androidtagview.TagContainerLayout
+                android:id="@+id/tgComments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:layout_weight="9"
+                android:padding="10dp"
+
+
+                app:container_background_color="#fff"
+                app:container_border_color="#fff"
+                app:horizontal_interval="10dp"
+                app:tag_background_color="@color/colorAccent"
+                app:tag_border_color="@color/colorAccent"
+                app:tag_clickable="true"
+                app:tag_text_color="@color/colorWhite"
+
+                app:tag_text_size="15sp"
+                app:tag_theme="none"
+                app:vertical_interval="10dp" />
+
+
+        </LinearLayout>
+    </FrameLayout>
+
+
+    <LinearLayout
+        android:id="@+id/llNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+
+        >
+
+        <ImageView
+            android:id="@+id/fabPrev"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/background_navigation_back"
+            android:src="@drawable/ic_arrow_back" />
+
+        <LinearLayout
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorWhite"
+
+            />
+
+        <ImageView
+            android:id="@+id/fabNext"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/background_navigation"
+            android:src="@drawable/ic_save" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "640205994253",
+    "project_id": "cocacola-363bd",
+    "storage_bucket": "cocacola-363bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:640205994253:android:c49746e09c8e68af4cd844",
+        "android_client_info": {
+          "package_name": "com.storexecution.cocacola"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "640205994253-iqf0kp1ev5snukb7534mhhc6plcn6jq3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQ7k8cxF61MGpHzri3KBjdu5lZjlAk1dg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "640205994253-iqf0kp1ev5snukb7534mhhc6plcn6jq3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

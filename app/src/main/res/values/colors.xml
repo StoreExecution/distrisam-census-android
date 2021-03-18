@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FE001A</color>
+    <color name="colorPrimaryDark">#DA0016</color>
+    <color name="colorAccent">#ff0613</color>
+
+
+    <color name="colorRed">#C30000</color>
+    <color name="colorYellow">#FBC02D</color>
+    <color name="colorGreen2">#388E3C</color>
+    <color name="colorGrey">#BCBCBC</color>
+    <color name="selected">#E44B4B</color>
+    <color name="colorGreen">#11A100</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorBlack">#000</color>
+    <color name="background">#F2F2F2</color>
+    <color name="lightGrey">#E4E4E4</color>
+
+
+
+
+
+
+   <color name="color1">#DA0016</color>
+   <color name="color2">#F1F5F8</color>
+   <color name="color3">#2e51bb</color>
+   <color name="color4">#3151BC</color>
+   <color name="color5">#dee7ef</color>
+   <color name="color6">#D32929</color>
+   <color name="color7">#365A74</color>
+   <color name="color8">#D2DFEA</color>
+   <color name="color9">#91C714</color>
+    <color name="color10">#3160D8</color>
+    <color name="color11">#F78B00</color>
+    <color name="color12">#FBC500</color>
+    <color name="color13">#7F9EB9</color>
+    <color name="color14">#E6F3FF</color>
+    <color name="color15">#8DA9BE</color>
+    <color name="color16">#607F96</color>
+    <color name="color17">#FFEFD9</color>
+    <color name="color18">#D8F8BC</color>
+    <color name="color19">#E6F3FF</color>
+    <color name="color20">#2449AF</color>
+    <color name="color21">#284EB2</color>
+    <color name="color22">#395EC1</color>
+    <color name="color23">#D6E1FF</color>
+    <color name="color24">#2e51bb</color>
+    <color name="color25">#C6D4FD</color>
+    <color name="color26">#E8EEFF</color>
+    <color name="color27">#98AFF5</color>
+    <color name="color28">#1A389F</color>
+    <color name="color29">#142C91</color>
+    <color name="color30">#8da3e6</color>
+    <color name="color31">#ffd8d8</color>
+    <color name="color32">#3b5998</color>
+    <color name="color33">#4ab3f4</color>
+    <color name="color34">#517fa4</color>
+    <color name="color35">#0077b5</color>
+    <color name="color36">#d18d96</color>
+    <color name="color37">#c7d2ff</color>
+    <color name="color38">#15329A</color>
+    <color name="color40">#203FAD</color>
+    <color name="color41">#BBC8FD</color>
+    <color name="color42">#aa00ff</color>
+    <color name="color43">#ff3d00</color>
+    <color name="color44">#64dd17</color>
+    <color name="color45">#e91e63</color>
+</resources>

@@ -1,0 +1,493 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    >
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="2.9">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="15dp">
+
+
+                    <LinearLayout
+                        android:id="@+id/llFridge"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerInParent="true"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="visible">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Frigo abusé"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+
+
+                            />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <RadioGroup
+                                android:id="@+id/rgAbused"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+
+                                <RadioButton
+                                    android:id="@+id/rbAbusedYes"
+
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginHorizontal="10dp"
+                                    android:text="Oui" />
+
+                                <RadioButton
+                                    android:id="@+id/rbrbAbusedNo"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginHorizontal="10dp"
+                                    android:text="Non" />
+                            </RadioGroup>
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Propriétaire frigo coca"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+
+
+                            />
+
+
+                        <Spinner
+                            android:id="@+id/spFridgeOwner"
+                            android:layout_width="250dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/outline"
+                            android:entries="@array/FridgeOwner"
+                            android:padding="15dp" />
+
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Date d'attribution"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+
+
+                            />
+
+
+                        <Spinner
+
+                            android:id="@+id/spFridgeDate"
+
+                            android:layout_width="250dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/outline"
+                            android:entries="@array/AttrebutionYear"
+                            android:padding="15dp" />
+
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Model frigo"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+
+
+                            />
+
+
+                        <Spinner
+                            android:id="@+id/spFridgeModel"
+                            android:layout_width="250dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/outline"
+                            android:entries="@array/FridgeModel"
+                            android:padding="15dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Numero de  Serie"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="19sp"
+                            android:visibility="gone"
+                            android:textStyle="bold"
+
+
+                            />
+
+                        <EditText
+                            android:id="@+id/etSerialNumber"
+                            android:layout_width="250dp"
+
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/edittext_background"
+                            android:gravity="center"
+                            android:hint="Numero de  Serie"
+                            android:padding="10dp"
+                            android:textColorHint="#757575"
+
+                            />
+
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Etat frigo"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+
+
+                            />
+
+                        <Spinner
+                            android:id="@+id/spfridgeState"
+                            android:layout_width="250dp"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/outline"
+                            android:entries="@array/fridgeState"
+                            android:padding="15dp" />
+
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="Type de panne"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+
+                            />
+
+
+                        <Spinner
+                            android:id="@+id/spBreakDownType"
+                            android:layout_width="250dp"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/outline"
+                            android:entries="@array/BreakDownType"
+                            android:padding="15dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Frigo est : "
+                            android:textColor="@color/colorPrimary"
+
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+
+
+                            />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_margin="10dp"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <RadioGroup
+                                android:id="@+id/rgIsOn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+
+                                <RadioButton
+                                    android:id="@+id/rbFridgeOn"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginHorizontal="10dp"
+                                    android:text="Alumer" />
+
+                                <RadioButton
+                                    android:id="@+id/rbFridgeOff"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginHorizontal="10dp"
+                                    android:text="Eteint" />
+                            </RadioGroup>
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Temperature du frigo"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+
+
+                            />
+
+                        <EditText
+                            android:id="@+id/etFrigeTemp"
+                            android:layout_width="250dp"
+                            android:layout_height="wrap_content"
+
+                            android:layout_margin="10dp"
+                            android:background="@drawable/edittext_background"
+                            android:gravity="center"
+                            android:hint="Temperature du frigo"
+                            android:inputType="numberDecimal"
+                            android:padding="10dp"
+                            android:textColorHint="#757575"
+
+                            />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Frigo en exterieur"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+
+
+                            />
+
+                        <RadioGroup
+                            android:id="@+id/rgExternalFridge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+
+                            <RadioButton
+                                android:id="@+id/rbExternalFridgeYes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="10dp"
+                                android:text="Oui" />
+
+                            <RadioButton
+                                android:id="@+id/rbExternalFridgeNo"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="10dp"
+                                android:text="Non" />
+                        </RadioGroup>
+
+
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:gravity="center"
+                            android:text="Photo Fridgo"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="19sp"
+                            android:textStyle="bold"
+
+                            />
+
+                        <ImageView
+                            android:id="@+id/ivPhoto"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="10dp"
+                            android:src="@drawable/photo_red" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <Button
+                                android:id="@+id/btDelete"
+                                android:layout_width="120dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginHorizontal="10dp"
+                                android:background="@drawable/login_button"
+                                android:gravity="center"
+                                android:paddingHorizontal="10dp"
+                                android:text="Supprimer"
+                                android:textColor="@color/colorWhite"
+
+                                />
+
+                            <Button
+                                android:id="@+id/btValidate"
+                                android:layout_width="120dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginHorizontal="10dp"
+                                android:background="@drawable/login_button_green"
+                                android:gravity="center"
+                                android:paddingHorizontal="10dp"
+                                android:text="Valider"
+                                android:textColor="@color/colorWhite"
+
+                                />
+
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llBarcode"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerInParent="true"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Photo emplacement code barres frigo"
+                            android:textColor="@color/colorAccent"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:id="@+id/ivPhotoBarcode"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+
+                            android:src="@drawable/photo_red" />
+
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Code  barres"
+                            android:textColor="@color/colorAccent"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="250dp"
+                            android:layout_height="60dp"
+                            android:layout_gravity="center"
+                            android:layout_margin="10dp"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:visibility="visible">
+
+
+                            <TextView
+
+                                android:id="@+id/etBarCode"
+
+                                android:layout_width="match_parent"
+                                android:layout_height="45dp"
+
+
+                                android:layout_weight="2"
+                                android:background="@drawable/edittext_background"
+                                android:gravity="center"
+                                android:hint="Code a Barre"
+                                android:padding="10dp"
+                                android:textColorHint="#757575"
+
+                                />
+
+
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/barCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+
+                            android:layout_margin="5dp"
+                            android:layout_marginVertical="10dp"
+                            android:background="@color/colorPrimary"
+                            android:paddingHorizontal="75dp"
+                            android:text="Lier le code bar"
+                            android:textColor="#fff" />
+
+                        <Button
+                            android:id="@+id/btValidateBarCode"
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginHorizontal="10dp"
+                            android:layout_marginVertical="15dp"
+                            android:background="@drawable/login_button_green"
+                            android:gravity="center"
+                            android:paddingHorizontal="10dp"
+                            android:text="Valider"
+                            android:textColor="@color/colorWhite"
+
+                            />
+
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+            </androidx.cardview.widget.CardView>
+        </ScrollView>
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,84 @@
+apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
+android {
+    compileSdkVersion 29
+    buildToolsVersion "30.0.2"
+
+    defaultConfig {
+        applicationId "com.storexecution.cocacola"
+        minSdkVersion 23
+        targetSdkVersion 29
+        versionCode 22
+        versionName "22.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            ndk {
+                abiFilters "armeabi-v7a" // includes ARM SO files only, so no x86 SO file
+            }
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation "androidx.cardview:cardview:1.0.0"
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
+    implementation 'co.lujun:androidtagview:1.1.7'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.github.f0ris.sweetalert:library:1.6.2'
+    implementation 'com.github.pappin.mbs:mbs-lib:1.0.1'
+    implementation 'com.google.android.gms:play-services-vision:20.1.3'
+    implementation 'org.greenrobot:eventbus:3.2.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.github.sujithkanna:smileyrating:2.0.0'
+    implementation 'com.github.pratikbutani:MultiSelectSpinner:f47c0dadea'
+    implementation 'com.github.AnuraganuPunalur:Multi-Selection-Spinner-Android:1.0'
+    implementation 'com.github.abumoallim:Android-Multi-Select-Dialog:v1.9'
+    implementation 'com.github.GrenderG:Toasty:1.5.0'
+    implementation 'com.github.MKergall:osmbonuspack:6.6.0'
+    implementation "androidx.drawerlayout:drawerlayout:1.1.1"
+    implementation 'com.karumi:dexter:6.2.2'
+    implementation 'com.daimajia.androidanimations:library:2.4@aar'
+    implementation 'io.github.inflationx:calligraphy3:3.1.1'
+    implementation 'io.github.inflationx:viewpump:2.0.3'
+    implementation 'com.nbsp:materialfilepicker:1.9.1'
+    implementation 'com.liulishuo.filedownloader:library:1.7.7'
+    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
+    implementation platform('com.google.firebase:firebase-bom:26.2.0')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.github.koushikcse:LoadingButton:1.7'
+    implementation("com.google.guava:guava:30.1-android")
+
+
+
+}

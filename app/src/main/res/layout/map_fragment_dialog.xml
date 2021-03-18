@@ -1,0 +1,92 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:weightSum="10">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="8"
+
+        >
+
+        <org.osmdroid.views.MapView
+            android:id="@+id/mvMap"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+
+            />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/ivMap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="16dp"
+
+            android:src="@drawable/ic_layers"
+            android:tint="@color/colorWhite" />
+    </RelativeLayout>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_marginVertical="5dp"
+        android:layout_weight="1.5"
+        android:gravity="center"
+        android:text="La position est-elle correcte ? "
+        android:textColor="@color/colorAccent"
+        android:textSize="21sp"
+        android:textStyle="bold" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+
+        android:layout_weight="0.5"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:gravity="center"
+
+
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/btNo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="5dp"
+            android:layout_marginVertical="5dp"
+            android:layout_weight="1"
+            android:background="@color/colorRed"
+            android:text="Non"
+            android:textColor="@color/white" />
+
+
+        <Button
+            android:id="@+id/btYes"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="5dp"
+            android:layout_marginVertical="5dp"
+            android:layout_weight="1"
+            android:background="@color/colorGreen"
+            android:text="Oui"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+
+</LinearLayout>

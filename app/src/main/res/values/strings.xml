@@ -1,0 +1,229 @@
+<resources>
+    <string name="app_name">Coca Cola</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="posname">Nom du Magasin</string>
+    <string name="ownername">Nom du propriétaire </string>
+    <string name="ownerPhone">Téléphone du propriétaire </string>
+
+    <string name="managerName">Nom du gérant </string>
+    <string name="ManagerPhone">Téléphone du gérant </string>
+    <string name="typePOS">Type du POS</string>
+    <string-array name="typePOSlist">
+
+        <item>Type du POS</item>
+        <item>AG</item>
+        <item>SUP</item>
+        <item>FAST FOOD </item>
+        <item>Cafeteria </item>
+        <item>Restaurant</item>
+        <item>Thé</item>
+        <item>BT</item>
+    </string-array>
+
+    <string-array name="rating">
+
+        <item>Note</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3 </item>
+        <item>4 </item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+
+    <string-array name="fridgeState">
+
+        <item>Etat du frigo</item>
+        <item>Bon Etat</item>
+        <item>En Panne</item>
+
+    </string-array>
+    <string name="surface">Superfice du POS</string>
+
+    <string-array name="sufaceList">
+
+        <item>Superfice du POS</item>
+        <item>0-10m</item>
+        <item>20-30m</item>
+        <item>30-40m</item>
+        <item>40-60m</item>
+        <item>60-80m</item>
+        <item>80-120m</item>
+        <item>120m-150m</item>
+        <item>+150m</item>
+    </string-array>
+    <string-array name="fridgeType">
+
+        <item>Type Frigo</item>
+        <item>1 porte</item>
+        <item>2 portes</item>
+
+    </string-array>
+
+    <string-array name="wilaya">
+
+        <item>Wilaya</item>
+        <item>Alger</item>
+        <item>Skikda</item>
+
+    </string-array>
+    <string-array name="cities">
+
+        <item>Villes</item>
+        <item>Alger centre</item>
+        <item>Cheraga</item>
+
+    </string-array>
+
+    <string-array name="communes">
+
+        <item>Communes</item>
+        <item>Alger centre </item>
+        <item>Dely brahim </item>
+
+
+    </string-array>
+    <string name="sourceofpurchase">Source d\'achat </string>
+
+    <string-array name="sourceofpurchaseList">
+
+        <item>Source d\'achat</item>
+        <item>DD</item>
+        <item>Ambulant</item>
+        <item>Mix</item>
+        <item>GROS</item>
+    </string-array>
+
+
+    <string name="freauencyofpurchase">Frequance d\'achat  </string>
+
+    <string-array name="freauencyofpurchaseList">
+
+        <item>Frequance d\'achat </item>
+        <item>0.5 x / semaine </item>
+        <item>1 x / semaine </item>
+        <item>2 x / semaine </item>
+        <item>3 x / semaine </item>
+        <item>4 x / semaine </item>
+        <item>5 x / semaine </item>
+        <item>6 x / semaine </item>
+    </string-array>
+
+    <string name="zoneType">Type de zone d\'achalendage  </string>
+    <string-array name="zoneTypeList">
+
+        <item>Type de zone d\'achalendage</item>
+        <item>cartier residentiel</item>
+        <item>cartier populaire </item>
+        <item> place publique</item>
+        <item>zone d\'attraction(plage, parc, etc…)</item>
+        <item>axe routier</item>
+        <item>Boulvard</item>
+    </string-array>
+
+
+    <string name="classification">Classification </string>
+    <string-array name="classificationList">
+
+        <item>Classification</item>
+        <item>A</item>
+        <item>B </item>
+        <item>C</item>
+
+    </string-array>
+
+    <string-array name="reasonsLists">
+
+        <item>Raison de fermeture</item>
+        <item>Fermeture temporaire</item>
+        <item>Fermeture définitive  </item>
+        <item>Horraire habituelle de fermeture </item>
+        <item>Raison inconne</item>
+
+    </string-array>
+    <string-array name="refuseReasons">
+        <item>Raison de refus</item>
+        <item>Refus du proprietaire </item>
+        <item>Conflit avec Coca-Cola </item>
+        <item>proprietaire ou gerant absent  </item>
+        <item>proprietaire pas interessé par la DD </item>
+        <item>Autre</item>
+
+    </string-array>
+
+
+    <string name="Classification">Classification </string>
+    <string-array name="ClassificationList">
+
+        <item>Classification</item>
+        <item>A</item>
+        <item>B </item>
+        <item>C</item>
+
+    </string-array>
+
+    <string name="casesRGbkoFull">Nombre Caisses RGB ko, Plein  </string>
+    <string name="casesRGbkoEmpty">Nombre Caisses RGB ko, vide  </string>
+    <string-array name="FridgeOwner">
+        <item></item>
+        <item>Castel</item>
+        <item>Frigo POS</item>
+
+
+    </string-array>
+    <string-array name="FridgeModel">
+        <item></item>
+        <item>200</item>
+        <item>400</item>
+        <item>600</item>
+        <item>1000</item>
+
+
+    </string-array>
+
+    <string-array name="audit">
+
+
+        <item>régularité</item>
+        <item>professionnalisme</item>
+        <item>présentation</item>
+        <item>accueil</item>
+        <item>service</item>
+        <item>honnêteté</item>
+        <item>autre</item>
+
+
+    </string-array>
+    <string-array name="BreakDownType">
+        <item></item>
+        <item>panne frigorifique</item>
+        <item>panne electrique</item>
+        <item>Accessoire</item>
+
+
+    </string-array>
+
+    <string-array name="AttrebutionYear">
+        <item></item>
+
+
+        <item>2010</item>
+        <item>2011</item>
+        <item>2012</item>
+        <item>2013</item>
+        <item>2014</item>
+        <item>2015</item>
+        <item>2016</item>
+        <item>2017</item>
+        <item>2018</item>
+        <item>2019</item>
+        <item>2020</item>
+    </string-array>
+
+</resources>
