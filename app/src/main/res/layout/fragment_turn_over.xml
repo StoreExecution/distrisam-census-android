@@ -778,7 +778,9 @@
 
                                             android:hint="Caisse"
 
-                                            android:inputType="numberSigned" />
+                                            android:inputType="numberSigned"
+
+                                            />
 
                                         <Button
                                             android:id="@+id/btPlusOtherLow"

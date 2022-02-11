@@ -1,0 +1,270 @@
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff">
+
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            >
+
+            <org.osmdroid.views.MapView
+                android:id="@+id/mvMap"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabTracking"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginVertical="5dp"
+
+                    android:src="@drawable/ic_polymer"
+                    android:tint="@color/colorWhite" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabSector"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ivOpen"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginVertical="5dp"
+
+                    android:src="@drawable/ic_map"
+                    android:tint="@color/colorWhite" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/ivMap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ivOpen"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginVertical="5dp"
+
+                    android:src="@drawable/ic_layers"
+                    android:tint="@color/colorWhite" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabLocate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="5dp"
+
+
+                    android:src="@drawable/ic_gps_fixed"
+                    android:tint="@color/colorWhite" />
+
+            </LinearLayout>
+
+
+            <ImageView
+                android:id="@+id/ivOpen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="10dp"
+
+                android:background="@drawable/card_background"
+                android:drawablePadding="5dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="5dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="5dp"
+                android:src="@drawable/ic_chevron_left"
+                android:textColor="#fff"
+                android:tint="@color/colorWhite"
+
+
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/liste"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/colorWhite">
+
+                    <LinearLayout
+
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+
+                        android:background="#f2f2f2"
+                        android:orientation="vertical">
+
+                        <Button
+                            android:id="@+id/btAll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginHorizontal="5dp"
+                            android:layout_marginVertical="20dp"
+                            android:background="@drawable/card_background"
+                            android:drawableLeft="@drawable/ic_sync"
+                            android:drawablePadding="5dp"
+                            android:drawableTint="@color/white"
+                            android:padding="10dp"
+                            android:text="Sync BDD "
+                            android:textColor="#fff"
+                            android:textSize="10sp" />
+
+                        <LinearLayout
+                            android:id="@+id/llEdited"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:id="@+id/title"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_horizontal"
+                                android:text=""
+                                android:textColor="@color/colorAccent"
+                                android:textSize="10sp" />
+
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+
+                                <Button
+                                    android:id="@+id/btEdited"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="2dp"
+                                    android:layout_weight="1"
+
+
+                                    android:background="@drawable/card_background"
+                                    android:text="Non Modifiés"
+                                    android:textColor="#fff"
+                                    android:textSize="10sp" />
+
+                                <Button
+                                    android:id="@+id/btEdite"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="2dp"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/card_background"
+                                    android:padding="10dp"
+                                    android:text="Modifiés"
+                                    android:textColor="#fff"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvCalendar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/colorAccent"
+                            android:drawableLeft="@drawable/ic_date_range"
+                            android:gravity="center"
+                            android:padding="15dp"
+                            android:textColor="#fff"
+                            android:visibility="gone"
+
+                            />
+
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvSalepoints"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+
+                            android:clipToPadding="false"
+                            android:paddingBottom="55dp" />
+
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+
+                <include
+                    android:id="@+id/workDetails"
+                    layout="@layout/include_work_details"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_login"
+
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="@dimen/margin_login"
+
+                    android:layout_weight="3" />
+
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+    </FrameLayout>
+
+
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:background="@color/colorWhite"
+        android:clickable="true"
+        android:gravity="center_horizontal"
+
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btSyncSectors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/login_button"
+            android:drawableLeft="@drawable/ic_sync"
+            android:drawableTint="@color/colorWhite"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="10dp"
+            android:text="Synchroniser"
+            android:textColor="@color/colorWhite" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/lvDrawer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            />
+
+    </LinearLayout>
+
+
+</androidx.drawerlayout.widget.DrawerLayout>

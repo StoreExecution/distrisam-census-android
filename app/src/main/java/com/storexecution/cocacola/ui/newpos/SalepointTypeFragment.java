@@ -1,8 +1,10 @@
 package com.storexecution.cocacola.ui.newpos;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -91,6 +93,16 @@ public class SalepointTypeFragment extends Fragment {
     int selected;
     Session session;
     Realm realm;
+    int rtmId;
+    int notification_id;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        rtmId = getArguments().getInt("rtmId", 0);
+        notification_id = getArguments().getInt("notification_id", 0);
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -105,6 +117,11 @@ public class SalepointTypeFragment extends Fragment {
             salepoint.setMobile_id("pos_" + UUID.randomUUID());
         if (salepoint.getStartedMobileDate() == 0)
             salepoint.setStartedMobileDate(System.currentTimeMillis() / 1000);
+        if (salepoint.getRtmId() == 0)
+            salepoint.setRtmId(rtmId);
+
+        salepoint.setNotificationId(notification_id);
+
         views = new ArrayList<>();
         images = new ArrayList<>();
         textViews = new ArrayList<>();

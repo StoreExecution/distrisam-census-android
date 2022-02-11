@@ -15,11 +15,13 @@ import android.widget.RelativeLayout;
 
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.model.Salepoint;
+import com.storexecution.cocacola.util.Constants;
 import com.storexecution.cocacola.util.Session;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import es.dmoral.toasty.Toasty;
 
 
 public class TurnOverFragment extends Fragment {
@@ -405,10 +407,10 @@ public class TurnOverFragment extends Fragment {
 
     private void setData() {
 
-        if (etToCocaColaLow.getText().toString().length() > 0){
+        if (etToCocaColaLow.getText().toString().length() > 0) {
             int count = Integer.parseInt(etToCocaColaLow.getText().toString());
             salepoint.setPurchaseCocaColaLow(etToCocaColaLow.getText().toString());
-            salepoint.setPurchaseCocaColaHigh(String.valueOf(count*2));
+            salepoint.setPurchaseCocaColaHigh(String.valueOf(count * 2));
 
         }
 
@@ -416,11 +418,11 @@ public class TurnOverFragment extends Fragment {
 //            salepoint.setPurchaseCocaColaHigh(etToCocaColaHigh.getText().toString());
 
 
-        if (etToPepsiLow.getText().toString().length() > 0){
+        if (etToPepsiLow.getText().toString().length() > 0) {
 
             salepoint.setPurchasePepsiLow(etToPepsiLow.getText().toString());
             int count = Integer.parseInt(etToPepsiLow.getText().toString());
-            salepoint.setPurchasePepsiHigh(String.valueOf(count*2));
+            salepoint.setPurchasePepsiHigh(String.valueOf(count * 2));
 
 
         }
@@ -428,18 +430,18 @@ public class TurnOverFragment extends Fragment {
 //            salepoint.setPurchasePepsiHigh(etToPepsiHigh.getText().toString());
 
 
-        if (ethammoudLow.getText().toString().length() > 0){
+        if (ethammoudLow.getText().toString().length() > 0) {
             salepoint.setPurchaseHamoudLow(ethammoudLow.getText().toString());
             int count = Integer.parseInt(ethammoudLow.getText().toString());
-            salepoint.setPurchaseHamoudHigh(String.valueOf(count*2));
+            salepoint.setPurchaseHamoudHigh(String.valueOf(count * 2));
         }
 //        if (ethammoudHigh.getText().toString().length() > 0)
 //            salepoint.setPurchaseHamoudHigh(ethammoudHigh.getText().toString());
 
-        if (etOtherLow.getText().toString().length() > 0){
+        if (etOtherLow.getText().toString().length() > 0) {
             salepoint.setPurchaseSodaLow(etOtherLow.getText().toString());
             int count = Integer.parseInt(etOtherLow.getText().toString());
-            salepoint.setPurchaseSodaHigh(String.valueOf(count*2));
+            salepoint.setPurchaseSodaHigh(String.valueOf(count * 2));
         }
 
 //        if (etOtherHigh.getText().toString().length() > 0)
@@ -451,6 +453,8 @@ public class TurnOverFragment extends Fragment {
 
     @OnClick(R.id.fabNext)
     public void save() {
+
+        if(checkLimits()){
         TurnOverFragment2 fragment = new TurnOverFragment2();
         setData();
         getActivity().getSupportFragmentManager()
@@ -458,6 +462,8 @@ public class TurnOverFragment extends Fragment {
                 .replace(R.id.content, fragment, "storeInfo")
                 .addToBackStack(getClass().getName())
                 .commit();
+              }
+
 
 
     }
@@ -466,6 +472,1197 @@ public class TurnOverFragment extends Fragment {
     public void prev() {
         setData();
         getActivity().onBackPressed();
+
+    }
+
+    public boolean checkLimits() {
+        boolean valid = true;
+
+        switch (salepoint.getSalepointType()) {
+
+            case Constants.TYPE_AG:
+                switch (salepoint.getClassification()) {
+
+                    case Constants.ZONE_A:
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 100) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 200) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 60) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 120) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 100) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 200) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 100) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 200) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+                        break;
+
+                    case Constants.ZONE_B:
+
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 70) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 140) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 40) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 80) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 70) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 140) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 70) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 140) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_C:
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 50) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 100) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 20) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 40) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 50) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 100) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 50) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 100) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                }
+
+
+                break;
+            case Constants.TYPE_SUP:
+
+                switch (salepoint.getClassification()) {
+
+                    case Constants.ZONE_A:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 150) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 300) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 100) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 200) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 120) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 240) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 120) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 240) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                    case Constants.ZONE_B:
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 100) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 200) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 80) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 160) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 100) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 200) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 100) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 200) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+                        break;
+
+                    case Constants.ZONE_C:
+
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 70) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 140) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 60) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 120) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 80) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 160) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 100) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 200) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                }
+
+
+                break;
+            case Constants.TYPE_CAFE:
+
+                switch (salepoint.getClassification()) {
+
+                    case Constants.ZONE_A:
+
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 130) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 260) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 80) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 160) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 100) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 200) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 140) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 280) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 70) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 140) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 60) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 120) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 80) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 160) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 100) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 200) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 80) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 160) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 40) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 80) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 60) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 120) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 80) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 160) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                }
+
+                break;
+            case Constants.TYPE_FASTFOOD:
+
+
+                switch (salepoint.getClassification()) {
+
+                    case Constants.ZONE_A:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 100) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 200) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 60) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 120) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 80) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 160) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 80) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 160) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 80) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 160) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 40) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 80) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 60) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 120) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 60) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 120) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 60) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 20) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 40) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 80) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 40) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 80) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 40) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 80) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                }
+
+                break;
+            case Constants.TYPE_RESTAURANT:
+
+                switch (salepoint.getClassification()) {
+
+                    case Constants.ZONE_A:
+
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 130) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 260) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 80) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 160) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 100) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 200) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 140) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 280) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 100) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 200) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 60) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 120) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 80) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 160) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 110) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 220) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 80) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 160) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 40) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 80) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 60) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 120) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 80) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 160) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                }
+
+
+                break;
+            case Constants.TYPE_PATISSERIE:
+
+                switch (salepoint.getClassification()) {
+
+                    case Constants.ZONE_A:
+
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 100) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 200) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 60) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 120) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 80) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 160) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 80) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 160) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 80) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 160) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 40) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 80) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 60) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 120) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 60) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 120) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_C:
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 60) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 120) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 20) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 40) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 40) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 80) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 40) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 80) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                }
+
+                break;
+            case Constants.TYPE_BT:
+                switch (salepoint.getClassification()) {
+
+                    case Constants.ZONE_A:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 100) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 200) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 60) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 120) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 80) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 160) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 100) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 200) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 80) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 160) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 40) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 80) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 50) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 120) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 60) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 120) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 60) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 120) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 20) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 40) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 40) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 80) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 40) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 80) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                }
+
+                break;
+            case Constants.TYPE_THE:
+
+                switch (salepoint.getClassification()) {
+
+                    case Constants.ZONE_A:
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 60) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 120) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 40) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 80) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 40) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 80) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 40) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 80) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 40) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 80) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 30) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 60) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 30) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 60) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 30) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 60) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+                        if (etToCocaColaLow.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaLow.getText().toString()) >= 30) {
+                            etToCocaColaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                            Toasty.error(getActivity(), "error coca", 3000).show();
+                        }
+                        if (etToCocaColaHigh.getText().toString().length() > 0 && Integer.valueOf(etToCocaColaHigh.getText().toString()) >= 60) {
+                            etToCocaColaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etToPepsiLow.getText().toString().length() > 0 && Integer.valueOf(etToPepsiLow.getText().toString()) >= 20) {
+                            etToPepsiLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (etToPepsiHigh.getText().toString().length() > 0 && Integer.valueOf(etToPepsiHigh.getText().toString()) >= 40) {
+                            etToPepsiHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        if (ethammoudLow.getText().toString().length() > 0 && Integer.valueOf(ethammoudLow.getText().toString()) >= 20) {
+                            ethammoudLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (ethammoudHigh.getText().toString().length() > 0 && Integer.valueOf(ethammoudHigh.getText().toString()) >= 40) {
+                            ethammoudHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherLow.getText().toString().length() > 0 && Integer.valueOf(etOtherLow.getText().toString()) >= 20) {
+                            etOtherLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etOtherHigh.getText().toString().length() > 0 && Integer.valueOf(etOtherHigh.getText().toString()) >= 40) {
+                            etOtherHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+
+                        break;
+
+                }
+
+
+                break;
+        }
+
+        return valid;
 
 
     }

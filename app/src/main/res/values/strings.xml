@@ -22,6 +22,15 @@
         <item>BT</item>
     </string-array>
 
+
+    <string-array name="typeactivitychange">
+
+        <item>Type</item>
+        <item>Changement d\'activité </item>
+        <item>Fermeture definitive</item>
+
+    </string-array>
+
     <string-array name="rating">
 
         <item>Note</item>
@@ -89,7 +98,7 @@
 
 
     </string-array>
-    <string name="sourceofpurchase">Source d\'achat </string>
+    <string name="sourceofpurchase">Source d\'achat Coca-Cola </string>
 
     <string-array name="sourceofpurchaseList">
 
@@ -119,8 +128,8 @@
     <string-array name="zoneTypeList">
 
         <item>Type de zone d\'achalendage</item>
-        <item>cartier residentiel</item>
-        <item>cartier populaire </item>
+        <item>quartier residentiel</item>
+        <item>quartier populaire </item>
         <item> place publique</item>
         <item>zone d\'attraction(plage, parc, etc…)</item>
         <item>axe routier</item>
@@ -135,6 +144,16 @@
         <item>A</item>
         <item>B </item>
         <item>C</item>
+
+    </string-array>
+
+    <string-array name="facades">
+
+        <item>Façades</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
 
     </string-array>
 
@@ -224,6 +243,7 @@
         <item>2018</item>
         <item>2019</item>
         <item>2020</item>
+        <item>2021</item>
     </string-array>
 
 </resources>

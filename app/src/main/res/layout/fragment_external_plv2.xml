@@ -289,18 +289,22 @@
 
 
             <TextView
+                android:id="@+id/tvInternalPlv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="Photos"
                 android:textColor="@color/colorAccent"
                 android:textSize="19sp"
+                android:layout_gravity="center_horizontal"
                 android:textStyle="bold" />
 
             <ImageView
                 android:id="@+id/ivPhoto"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:adjustViewBounds="true"
                 android:src="@drawable/photo_red" />
 
 

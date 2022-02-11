@@ -46,7 +46,7 @@ public class UpdateActivity extends AppCompatActivity {
     TextView tvPercent;
 
     String savePath = FileDownloadUtils.getDefaultSaveRootPath() + File.separator + "cocacola" + File.separator;
-    ;
+
 
     boolean downloading = false;
 

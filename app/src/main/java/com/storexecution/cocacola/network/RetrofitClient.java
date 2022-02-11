@@ -6,6 +6,8 @@ import android.util.Log;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.storexecution.cocacola.BuildConfig;
+import com.storexecution.cocacola.util.Constants;
 
 import java.io.IOException;
 
@@ -22,33 +24,38 @@ public class RetrofitClient {
 
 //Define the base URL//
 
-
-    //private static final String BASE_URL = "http://projet.livraison.store-execution.com//api/mobile/";
-    //  public static final String HOST = "http://jti.hello-dev.com/";
-   // public static final String HOST = "http://192.168.1.89:8000";
-    //  private static final String HOST = "https://campagne.se-census.com/";
-    // private static final String HOST = "http://castel.store-execution.com";
-    private static final String HOST = "http://castel.se-census.com";
-    private static final String BASE_URL = HOST + "/api/";
+    private static String BASE_URL;
 
 
     //Create the Retrofit instance//
     static OkHttpClient okHttpClient = new OkHttpClient.Builder()
-//            .addInterceptor(new Interceptor() {
-//                @Override
-//                public Response intercept(Chain chain) throws IOException {
-//                    Response response = chain.proceed(chain.request());
-//
-//                    Log.e("Response", " /  " + response.body().string());
-//
-//                    return response;
-//                }
-//            }) // This is used to add ApplicationInterceptor.
+            .addInterceptor(new Interceptor() {
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+                    Response response = chain.proceed(chain.request());
+
+//                    Log.e("respone1",response.request().url().toString());
+//            //        Log.e("respone2",response.request().body().toString());
+//                    Log.e("Response3", " /  " + response.body().string());
+
+                    return response;
+                }
+            })
+
+            // This is used to add ApplicationInterceptor.
             //This is used to add NetworkInterceptor.
             .build();
 
 
     public static Retrofit getRetrofitInstance() {
+
+        if (BuildConfig.DEBUG) {
+            BASE_URL = Constants.TEST_URL + "/api/";
+        } else {
+            BASE_URL = Constants.PROD_URL + "/api/";
+
+        }
+        Log.e("BaseUTL", BASE_URL);
         GsonBuilder builder = new GsonBuilder();
         // builder.registerTypeAdapter(boolean.class, new BooleanTypeAdapter());
         Gson gson = builder.create();

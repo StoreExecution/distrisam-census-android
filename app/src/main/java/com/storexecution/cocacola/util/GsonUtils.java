@@ -3,6 +3,7 @@ package com.storexecution.cocacola.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.storexecution.cocacola.model.RTMSalepoint;
 import com.storexecution.cocacola.model.Salepoint;
 import com.storexecution.cocacola.model.Suivi;
 
@@ -29,6 +30,19 @@ public class GsonUtils {
 
     }
 
+    public static String rtmSalepointToJson(RTMSalepoint salepoint) {
+        Gson gson = new Gson();
+        return gson.toJson(salepoint, RTMSalepoint.class);
+
+
+    }
+
+    public static RTMSalepoint rtnSalepointFromJson(String salepoint) {
+        Gson gson = new Gson();
+        return gson.fromJson(salepoint, RTMSalepoint.class);
+
+    }
+
     public static String salepointListToJson(ArrayList<Salepoint> salepoints) {
 
         Gson gson = new Gson();
@@ -41,6 +55,23 @@ public class GsonUtils {
 
         Gson gson = new Gson();
         return gson.fromJson(salepoints, new TypeToken<ArrayList<Salepoint>>() {
+        }.getType());
+
+    }
+
+
+    public static String rtmSalepointListToJson(ArrayList<RTMSalepoint> salepoints) {
+
+        Gson gson = new Gson();
+        return gson.toJson(salepoints, new TypeToken<ArrayList<RTMSalepoint>>() {
+        }.getType());
+
+    }
+
+    public static ArrayList<RTMSalepoint> rtmSalepointsListFromJson(String salepoints) {
+
+        Gson gson = new Gson();
+        return gson.fromJson(salepoints, new TypeToken<ArrayList<RTMSalepoint>>() {
         }.getType());
 
     }

@@ -18,7 +18,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.provider.MediaStore;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,9 +41,13 @@ import com.storexecution.FridgeDialogCallbackInterface;
 import com.storexecution.cocacola.BuildConfig;
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.model.Fridge;
+import com.storexecution.cocacola.model.Notification;
 import com.storexecution.cocacola.model.Photo;
+import com.storexecution.cocacola.model.User;
+import com.storexecution.cocacola.model.ValidationConditon;
 import com.storexecution.cocacola.util.Base64Util;
 import com.storexecution.cocacola.util.Constants;
+import com.storexecution.cocacola.util.DateUtils;
 import com.storexecution.cocacola.util.ImageLoad;
 import com.storexecution.cocacola.util.PrimaryKeyFactory;
 import com.storexecution.cocacola.util.UtilBase64;
@@ -122,6 +125,10 @@ public class FridgeDialogSurvey extends DialogFragment {
     ImageView ivPhoto;
     @BindView(R.id.etBarCode)
     TextView etBarCode;
+    @BindView(R.id.tvPhoto)
+    TextView tvPhoto;
+    @BindView(R.id.tvPhotoBarcode)
+    TextView tvPhotoBarcode;
     @BindView(R.id.barCode)
     Button barCode;
     @BindView(R.id.btValidateBarCode)
@@ -131,12 +138,14 @@ public class FridgeDialogSurvey extends DialogFragment {
      **/
     private Fridge fridge;
     private RealmList<Fridge> fridges;
+    int notificationId;
     private int index;
     private Uri fileUri;
     int MEDIA_TYPE_IMAGE = 1;
     Realm realm;
     Photo photo;
     Photo photoBarcode;
+    User user;
     private static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".fileprovider";
 
 
@@ -171,7 +180,7 @@ public class FridgeDialogSurvey extends DialogFragment {
         spBreakDownType.setSelection(fridge.getBreakDownType());
         spFridgeModel.setSelection(fridge.getFridgeModel());
         spfridgeState.setSelection(fridge.getFridgeState());
-
+        user = realm.where(User.class).findFirst();
         spFridgeDate.setSelection(fridge.getAttributionYear());
 
         etBarCode.setText(fridge.getBarCode());
@@ -199,9 +208,19 @@ public class FridgeDialogSurvey extends DialogFragment {
 
             }
         });
+        checkNotification();
         return v;
 
 
+    }
+
+
+    public int getNotificationId() {
+        return notificationId;
+    }
+
+    public void setNotificationId(int notificationId) {
+        this.notificationId = notificationId;
     }
 
     public Fridge getFridge() {
@@ -385,9 +404,9 @@ public class FridgeDialogSurvey extends DialogFragment {
     public Uri getOutputMediaFileUri(int type) {
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type));
+            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type, fridge.getSalepointMobileId(), this.typeimage));
         } else {
-            File file = ImageLoad.getOutputMediaFile(getContext(), type);
+            File file = ImageLoad.getOutputMediaFile(getContext(), type, fridge.getSalepointMobileId(), this.typeimage);
             if (file == null) {
                 Log.e("nullfile", "nullfile");
             } else {
@@ -470,7 +489,7 @@ public class FridgeDialogSurvey extends DialogFragment {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
             String currentDateandTime = sdf.format(new Date());
 
-            canvas.drawText("Date: " + currentDateandTime, 20, 35, paint);
+            canvas.drawText("Date: " + DateUtils.todayDateTime(), 20, 35, paint);
 
        /*     ivPlv.setImageResource(android.R.color.transparent);
             PicassoSingleton.with(getActivity())
@@ -485,15 +504,23 @@ public class FridgeDialogSurvey extends DialogFragment {
             String imageBase64 = UtilBase64.bitmapToBase64String(mutableBitmap);
 
             // fridge.setPhotoFridge(imageBase64);
+
+            photo = realm.where(Photo.class).equalTo("TypeID", fridge.getMobileId()).and().equalTo("Type", typeimage).findFirst();
+
             realm.beginTransaction();
-            if (photo == null)
+            if (photo == null) {
                 photo = realm.createObject(Photo.class, PrimaryKeyFactory.nextKey(Photo.class));
 
-            photo.setImageID("fi_" + UUID.randomUUID());
-            photo.setDate(System.currentTimeMillis() / 1000 + "");
-            photo.setTypeID(fridge.getMobileId());
+                photo.setImageID("fi_" + UUID.randomUUID());
+                photo.setType(typeimage);
+                photo.setTypeID(fridge.getMobileId());
+
+            }
+            photo.setDate(DateUtils.todayDateTime() + "");
+            photo.setUser_id(user.getId());
             photo.setImage(imageBase64);
-            photo.setType(typeimage);
+            photo.setSynced(false);
+
             realm.commitTransaction();
 
         } catch (NullPointerException e) {
@@ -534,14 +561,14 @@ public class FridgeDialogSurvey extends DialogFragment {
 //        if (fridge.getBarCode().length() == 0) {
 //            return false;
 //        }
-        if (fridge.getFridgeState() == 0) {
-            return false;
-        }
+//        if (fridge.getFridgeState() == 0) {
+//            return false;
+//        }
         Log.e("5 fridgesurv", valid + " ");
-        if (fridge.getFridgeState() == 2) {
-            if (fridge.getBreakDownType() == 0)
-                return false;
-        }
+//        if (fridge.getFridgeState() == 2) {
+//            if (fridge.getBreakDownType() == 0)
+//                return false;
+//        }
         Log.e("6 fridgesurv", valid + " ");
         if (fridge.getIsOn() < 0) {
 
@@ -549,8 +576,8 @@ public class FridgeDialogSurvey extends DialogFragment {
         }
         Log.e("7 fridgesurv", valid + " ");
         if (fridge.getIsOn() == 1) {
-            if (fridge.getFridgeTemp().length() == 0)
-                return false;
+//            if (fridge.getFridgeTemp().length() == 0)
+//                return false;
         }
         Log.e("8 fridgesurv", valid + " ");
         if (fridge.getExternal() == -1) {
@@ -568,6 +595,41 @@ public class FridgeDialogSurvey extends DialogFragment {
         Log.e("10 fridgesurv", valid + " ");
 
         return valid;
+
+    }
+
+    private void checkNotification() {
+        Notification notification;
+        if (notificationId != 0)
+            notification = realm.where(Notification.class).equalTo("id", notificationId).findFirst();
+        else
+            notification = null;
+        if (notification != null) {
+            for (ValidationConditon validationConditon : notification.getConditions()) {
+
+                if (validationConditon.getStatus() == 0 && validationConditon.getDataType().equals(Constants.IMG_FRIDGE)) {
+                    Photo photo = realm.where(Photo.class).equalTo("Type", Constants.IMG_FRIDGE).and().equalTo("ImageID", validationConditon.getDataId()).and().equalTo("TypeID", fridge.getMobileId()).findFirst();
+                    if (photo != null) {
+
+                        tvPhoto.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+
+                    }
+
+                }
+
+                if (validationConditon.getStatus() == 0 && validationConditon.getDataType().equals(Constants.IMG_FRIDGE_BARCODE)) {
+                    Photo photo = realm.where(Photo.class).equalTo("Type", Constants.IMG_FRIDGE_BARCODE).and().equalTo("ImageID", validationConditon.getDataId()).and().equalTo("TypeID", fridge.getMobileId()).findFirst();
+                    if (photo != null) {
+                        tvPhotoBarcode.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+
+                    }
+
+                }
+
+            }
+
+
+        }
 
     }
 

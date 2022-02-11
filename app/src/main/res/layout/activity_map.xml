@@ -227,13 +227,40 @@
 
     </FrameLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/lvDrawer"
+
+    <LinearLayout
         android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="right"
-        android:background="#00ffffff"
-        android:divider="#00ffffff"
-        android:dividerHeight="0dp" />
+        android:background="@color/colorWhite"
+        android:clickable="true"
+        android:gravity="center_horizontal"
+
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btSyncSectors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/login_button"
+            android:drawableLeft="@drawable/ic_sync"
+            android:drawableTint="@color/colorWhite"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="10dp"
+            android:text="Synchroniser"
+            android:textColor="@color/colorWhite" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/lvDrawer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            />
+
+    </LinearLayout>
+
 
 </androidx.drawerlayout.widget.DrawerLayout>

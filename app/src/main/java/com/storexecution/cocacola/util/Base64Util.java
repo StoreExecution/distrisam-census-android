@@ -14,7 +14,24 @@ public class Base64Util {
 
     public static String bitmapToBase64String(Bitmap photo) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        photo.compress(Bitmap.CompressFormat.JPEG, 40, baos);
+        photo.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+
+
+        byte[] b = baos.toByteArray();
+
+        String encoded = Base64.encodeToString(b, Base64.DEFAULT);
+        try {
+            baos.close();
+            baos = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return encoded;
+    }
+    public static String bitmapToBase64String(Bitmap photo,int quality) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        photo.compress(Bitmap.CompressFormat.JPEG, quality, baos );
 
 
         byte[] b = baos.toByteArray();

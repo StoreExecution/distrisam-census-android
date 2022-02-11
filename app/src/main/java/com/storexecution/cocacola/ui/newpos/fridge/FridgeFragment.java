@@ -32,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,11 +45,15 @@ import com.storexecution.cocacola.adapter.ConccurentFridgeAdapter;
 import com.storexecution.cocacola.adapter.FridgeAdapter;
 import com.storexecution.cocacola.model.ConcurrentFridge;
 import com.storexecution.cocacola.model.Fridge;
+import com.storexecution.cocacola.model.Notification;
 import com.storexecution.cocacola.model.Photo;
 import com.storexecution.cocacola.model.Salepoint;
 import com.storexecution.cocacola.model.TagElement;
+import com.storexecution.cocacola.model.User;
+import com.storexecution.cocacola.model.ValidationConditon;
 import com.storexecution.cocacola.util.Base64Util;
 import com.storexecution.cocacola.util.Constants;
+import com.storexecution.cocacola.util.DateUtils;
 import com.storexecution.cocacola.util.ImageLoad;
 import com.storexecution.cocacola.util.PrimaryKeyFactory;
 import com.storexecution.cocacola.util.RecyclerItemClickListener;
@@ -131,6 +136,7 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
     TagContainerLayout mTagContainerLayout;
     ArrayList<TagElement> tags;
     Realm realm;
+    User user;
 
     public FridgeFragment() {
         // Required empty public constructor
@@ -145,6 +151,7 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
         ButterKnife.bind(this, v);
         fridges = new RealmList<>();
         realm = Realm.getDefaultInstance();
+        user = realm.where(User.class).findFirst();
         fridgesPepsi = new RealmList<>();
         fridgesHammoud = new RealmList<>();
         fridgesOther = new RealmList<>();
@@ -158,15 +165,20 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
         fridgesOther.addAll(salepoint.getOtherFridges());
 
         etFridgeCount.setText(salepoint.getFridgeCount());
+        Notification notification;
+        if (salepoint.getNotificationId() != 0)
+            notification = realm.where(Notification.class).equalTo("id", salepoint.getNotificationId()).findFirst();
+        else
+            notification = null;
 
-
-        fridgeAdapter = new FridgeAdapter(getActivity(), fridges, R.drawable.fridge_coca, new RecyclerItemClickListener() {
+        fridgeAdapter = new FridgeAdapter(getActivity(), fridges, R.drawable.fridge_coca, notification, new RecyclerItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 FridgeDialogSurvey fridgeDialogSurvey = new FridgeDialogSurvey();
                 // fridgeDialogSurvey.setFridge(fridges.get(position));
 
                 fridgeDialogSurvey.setFridges(fridges);
+                fridgeDialogSurvey.setNotificationId(salepoint.getNotificationId());
                 fridgeDialogSurvey.setIndex(position);
                 fridgeDialogSurvey.setTargetFragment(FridgeFragment.this, 1223);
                 fridgeDialogSurvey.setCancelable(false);
@@ -176,7 +188,8 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
             }
         });
 
-        fridgePepsiAdapter = new ConccurentFridgeAdapter(getActivity(), fridgesPepsi, R.drawable.fridge_pepsi, new RecyclerItemClickListener() {
+
+        fridgePepsiAdapter = new ConccurentFridgeAdapter(getActivity(), fridgesPepsi, R.drawable.fridge_pepsi, notification, new RecyclerItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 edit(fridgesPepsi, position, false, fridgePepsiAdapter);
@@ -185,7 +198,7 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
         });
 
 
-        fridgeHammoudAdapter = new ConccurentFridgeAdapter(getActivity(), fridgesHammoud, R.drawable.fridge_hamoud, new RecyclerItemClickListener() {
+        fridgeHammoudAdapter = new ConccurentFridgeAdapter(getActivity(), fridgesHammoud, R.drawable.fridge_hamoud, notification, new RecyclerItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 edit(fridgesHammoud, position, false, fridgeHammoudAdapter);
@@ -193,7 +206,7 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
             }
         });
 
-        fridgeOtherAdapter = new ConccurentFridgeAdapter(getActivity(), fridgesOther, R.drawable.frigo_other, new RecyclerItemClickListener() {
+        fridgeOtherAdapter = new ConccurentFridgeAdapter(getActivity(), fridgesOther, R.drawable.frigo_other, notification, new RecyclerItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 edit(fridgesOther, position, true, fridgeOtherAdapter);
@@ -339,8 +352,10 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
 
         ivDialogPhoto = new ImageView(getActivity());
 
-        ivDialogPhoto.setMaxHeight(80);
-        ivDialogPhoto.setMaxWidth(80);
+        ivDialogPhoto.setMaxHeight(300);
+        ivDialogPhoto.setMaxWidth(300);
+        ivDialogPhoto.setAdjustViewBounds(true);
+        ivDialogPhoto.setPadding(0, 0, 0, 0);
         ivDialogPhoto.setImageResource(R.drawable.photo_red);
 
         final TextView textviewex = new TextView(getActivity());
@@ -414,14 +429,27 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
 
         sweetAlertDialog.show();
         LinearLayout linearLayout = (LinearLayout) sweetAlertDialog.findViewById(R.id.loading);
+        ScrollView scrollView = new ScrollView(getActivity());
+
+        LinearLayout linearLayout1 = new LinearLayout(getActivity());
+        linearLayout1.setOrientation(LinearLayout.VERTICAL);
+
+        linearLayout1.addView(ivDialogPhoto);
+        linearLayout1.addView(textviewex);
+        linearLayout1.addView(external);
+
+        scrollView.addView(linearLayout1);
 
         int index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
-        linearLayout.addView(ivDialogPhoto, index + 1);
+        linearLayout.addView(scrollView, index + 1);
 
-        index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
-        linearLayout.addView(external, index + 1);
-        index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
-        linearLayout.addView(textviewex, index + 1);
+//        int index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
+//        linearLayout.addView(ivDialogPhoto, index + 1);
+//
+//        index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
+//        linearLayout.addView(external, index + 1);
+//        index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
+//        linearLayout.addView(textviewex, index + 1);
         index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
         linearLayout.addView(type, index + 1);
 
@@ -431,6 +459,8 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
 
         index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
         linearLayout.addView(name, index + 1);
+
+        // scrollView.addView(linearLayout1);
 
         ivDialogPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -469,8 +499,9 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
 
         ivDialogPhoto = new ImageView(getActivity());
 
-        ivDialogPhoto.setMaxHeight(100);
-        ivDialogPhoto.setMaxWidth(100);
+        ivDialogPhoto.setMaxHeight(300);
+        ivDialogPhoto.setMaxWidth(300);
+        ivDialogPhoto.setAdjustViewBounds(true);
 
         Photo photo = realm.where(Photo.class).equalTo("TypeID", fridge.getMobile_id()).and().equalTo("Type", Constants.IMG_CFRIDGE).findFirst();
         if (photo != null)
@@ -573,12 +604,25 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
 
         sweetAlertDialog.show();
         LinearLayout linearLayout = (LinearLayout) sweetAlertDialog.findViewById(R.id.loading);
+
+
+        LinearLayout linearLayout1 = new LinearLayout(getActivity());
+        ScrollView scrollView = new ScrollView(getActivity());
+        linearLayout1.setOrientation(LinearLayout.VERTICAL);
+        linearLayout1.addView(ivDialogPhoto);
+        linearLayout1.addView(textviewex);
+        linearLayout1.addView(external);
+
+
+        scrollView.addView(linearLayout1);
         int index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
-        linearLayout.addView(ivDialogPhoto, index + 1);
-        index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
-        linearLayout.addView(external, index + 1);
-        index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
-        linearLayout.addView(textviewex, index + 1);
+        linearLayout.addView(scrollView, index + 1);
+//        int index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
+//        linearLayout.addView(ivDialogPhoto, index + 1);
+//        index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
+//        linearLayout.addView(external, index + 1);
+//        index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
+//        linearLayout.addView(textviewex, index + 1);
         index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
         linearLayout.addView(type, index + 1);
 
@@ -651,10 +695,10 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
     public Uri getOutputMediaFileUri(int type) {
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type));
+            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type, salepoint.getMobile_id(), this.type));
         } else
 
-            return FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileprovider", ImageLoad.getOutputMediaFile(getContext(), type));
+            return FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileprovider", ImageLoad.getOutputMediaFile(getContext(), type, salepoint.getMobile_id(), this.type));
 
     }
 
@@ -731,12 +775,12 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
             Canvas canvas = new Canvas(mutableBitmap);
             Paint paint = new Paint();
             paint.setColor(Color.YELLOW);
-            paint.setTextSize(24);
+            paint.setTextSize(60);
             paint.setTextAlign(Paint.Align.LEFT);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-            String currentDateandTime = sdf.format(new Date());
 
-            canvas.drawText("Date: " + currentDateandTime, 20, 35, paint);
+
+            canvas.drawText("Date: " + DateUtils.todayDateTime(), 35, 65, paint);
 
        /*     ivPlv.setImageResource(android.R.color.transparent);
             PicassoSingleton.with(getActivity())
@@ -755,19 +799,21 @@ public class FridgeFragment extends Fragment implements FridgeDialogCallbackInte
 
             // fridge.setPhotoFridge(imageBase64);
             realm.beginTransaction();
+            Photo photo = null;
+            photo = realm.where(Photo.class).equalTo("TypeID", id).and().equalTo("Type", type).findFirst();
 
 
-            Photo photo = realm.createObject(Photo.class, PrimaryKeyFactory.nextKey(Photo.class));
-
-            photo.setImageID("cfridge_" + UUID.randomUUID());
-            photo.setDate(System.currentTimeMillis() / 1000 + "");
-            if (type.equals(Constants.IMG_PLV_Internal)) {
-                photo.setTypeID(salepoint.getMobile_id());
-            } else {
+            if (photo == null) {
+                photo = realm.createObject(Photo.class, PrimaryKeyFactory.nextKey(Photo.class));
                 photo.setTypeID(id);
+                photo.setImageID("cfridge_" + UUID.randomUUID());
+                photo.setType(type);
+
             }
+            photo.setDate(DateUtils.todayDateTime() + "");
             photo.setImage(imageBase64);
-            photo.setType(type);
+            photo.setSynced(false);
+            photo.setUser_id(user.getId());
 
             realm.commitTransaction();
 

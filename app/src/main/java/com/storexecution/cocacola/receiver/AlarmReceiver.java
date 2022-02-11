@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.core.content.ContextCompat;
+
+import com.storexecution.cocacola.service.LocationTracker;
 import com.storexecution.cocacola.service.TrackingService;
 import com.storexecution.cocacola.util.Constants;
 import com.storexecution.cocacola.util.DateUtils;
@@ -36,22 +39,24 @@ public class AlarmReceiver extends BroadcastReceiver {
         //  if (sharedPrefUtil.getBoolean("logged", false) && sharedPrefUtil.getBoolean("working",false)) {
         Log.e("Alarm", " in time2");
 
-        try {
-            if (DateUtils.isTimeBetweenTwoTime(Constants.START_TIME, Constants.END_TIME, DateUtils.currentTime())) {
-                Log.e("Alarm", " in time");
-                Intent i = new Intent(context, TrackingService.class);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(i);
-                } else {
-                    context.startService(i);
-                }
-            } else {
-                Log.e("Alarm", "not in time");
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        //try {
+         //   if (DateUtils.isTimeBetweenTwoTime(Constants.START_TIME, Constants.END_TIME, DateUtils.currentTime())) {
+//            if (true) {
+//                Log.e("Alarm", " in time");
+//                Intent i = new Intent(context, LocationTracker.class);
+//
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                    // context.startForegroundService(i);
+//                    context.startForegroundService(i);
+//                } else {
+//                    context.startService(i);
+//                }
+//            } else {
+//                Log.e("Alarm", "not in time");
+//            }
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
 
         // }
 

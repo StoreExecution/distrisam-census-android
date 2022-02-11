@@ -92,9 +92,11 @@
                         android:elevation="4dp"
                         android:gravity="center"
 
+
                         app:cardCornerRadius="4dp"
 
                         >
+
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -114,6 +116,7 @@
                                 android:src="@drawable/pos_informations" />
 
                             <TextView
+                                android:id="@+id/tvInfoPos"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_gravity="center"
@@ -122,6 +125,7 @@
 
                                 android:padding="5dp"
                                 android:text="Info.POS "
+
                                 android:textColor="@color/colorBlack"
 
                                 android:textStyle="bold" />
@@ -134,6 +138,7 @@
                                 android:background="@color/colorAccent"
                                 android:padding="0dp" />
                         </LinearLayout>
+
 
                     </androidx.cardview.widget.CardView>
 
@@ -166,6 +171,7 @@
                                 android:src="@drawable/purchses" />
 
                             <TextView
+                                android:id="@+id/tvPurchase"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_gravity="center"
@@ -243,6 +249,7 @@
                                 android:src="@drawable/friges_red" />
 
                             <TextView
+                                android:id="@+id/tvFridge"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_gravity="center"
@@ -378,6 +385,7 @@
                                 android:src="@drawable/plv_ex" />
 
                             <TextView
+                                android:id="@+id/tvExternalPlv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_gravity="center"
@@ -434,6 +442,7 @@
                                 android:src="@drawable/plv_int" />
 
                             <TextView
+                                android:id="@+id/tvInternalPlv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:layout_gravity="center"
@@ -506,6 +515,7 @@
                             android:src="@drawable/coca_empty" />
 
                         <TextView
+                            android:id="@+id/tvRgb"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
@@ -562,6 +572,7 @@
                             android:src="@drawable/localisation" />
 
                         <TextView
+                            android:id="@+id/tvLocation"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"

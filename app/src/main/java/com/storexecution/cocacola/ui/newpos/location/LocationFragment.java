@@ -50,13 +50,16 @@ import com.storexecution.cocacola.BuildConfig;
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.model.Commune;
 import com.storexecution.cocacola.model.Daira;
+import com.storexecution.cocacola.model.Notification;
 import com.storexecution.cocacola.model.Photo;
 import com.storexecution.cocacola.model.Salepoint;
 import com.storexecution.cocacola.model.User;
+import com.storexecution.cocacola.model.ValidationConditon;
 import com.storexecution.cocacola.model.Wilaya;
 import com.storexecution.cocacola.ui.newpos.fridge.FridgeFragment;
 import com.storexecution.cocacola.util.Base64Util;
 import com.storexecution.cocacola.util.Constants;
+import com.storexecution.cocacola.util.DateUtils;
 import com.storexecution.cocacola.util.DistanceCalculator;
 import com.storexecution.cocacola.util.ImageLoad;
 import com.storexecution.cocacola.util.PrimaryKeyFactory;
@@ -77,6 +80,7 @@ import butterknife.OnClick;
 import es.dmoral.toasty.Toasty;
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 
 
 public class LocationFragment extends Fragment implements LocationListener, LocationValidationCallbackInterface {
@@ -131,6 +135,8 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
     ImageView fabPrev;
     @BindView(R.id.fabNext)
     ImageView fabNext;
+    @BindView(R.id.tvPos)
+    TextView tvPos;
 
     /**
      * ButterKnife Code
@@ -175,9 +181,10 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
 
             Commune commune = realm.where(Commune.class).equalTo("id", salepoint.getCommune()).findFirst();
             int index = communesnames.indexOf(commune.getName());
-            spCommune.setSelection(index);
-
-
+            if (index != -1) {
+                spCommune.setSelection(index);
+            } else
+                spCommune.setSelection(0);
         }
 
 
@@ -263,7 +270,7 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
                 }
             }
         });
-
+        checkNotification();
 
         return v;
     }
@@ -272,6 +279,7 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
         communes = new RealmList<>();
         communesnames = new ArrayList<>();
         communesnames.add("");
+
         Wilaya wilaya = realm.where(Wilaya.class).equalTo("id", wilayaid).findFirst();
 
         dairas = wilaya.getDairas();
@@ -282,6 +290,23 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getContext(), android.R.layout.simple_list_item_1, communesnames);
         spCommune.setAdapter(adapter);
+
+    }
+
+    private int getCommuneId(int wilayaId, String name) {
+        Wilaya wilaya = realm.where(Wilaya.class).equalTo("id", wilayaId).findFirst();
+        // wilaya.getDairas().forEach();
+        RealmResults<Commune> communes = realm.where(Commune.class).equalTo("name", name).findAll();
+
+        for (Commune commune : communes) {
+            Daira daira = realm.where(Daira.class).equalTo("communes.id", commune.getId()).findFirst();
+            if (wilaya.getDairas().contains(daira)) {
+                return commune.getId();
+            }
+            // if(commune.get)
+        }
+
+        return 0;
 
     }
 
@@ -350,41 +375,49 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
                 first = false;
             } else {
 
-                Log.e("distance", DistanceCalculator.getDistance(
-                        location.getLatitude(),
-                        location.getLongitude(),
-                        firstLocation.getLatitude(),
-                        firstLocation.getLongitude()) + " ");
-                if (DistanceCalculator.getDistance(
-                        location.getLatitude(),
-                        location.getLongitude(),
-                        firstLocation.getLatitude(),
-                        firstLocation.getLongitude())
-                        <= 4) {
+                if (!location.isFromMockProvider()) {
 
+                    Log.e("distance", DistanceCalculator.getDistance(
+                            location.getLatitude(),
+                            location.getLongitude(),
+                            firstLocation.getLatitude(),
+                            firstLocation.getLongitude()) + " ");
+                    if (DistanceCalculator.getDistance(
+                            location.getLatitude(),
+                            location.getLongitude(),
+                            firstLocation.getLatitude(),
+                            firstLocation.getLongitude())
+                            <= 4) {
+
+                        btgps.setEnabled(true);
+                        btgps.hideLoading();
+
+
+                        if (wakeLock != null && wakeLock.isHeld())
+                            wakeLock.release();
+
+
+                        if (locationManager != null) {
+                            locationManager.removeUpdates(this);
+                            locationManager = null;
+                        }
+
+                        MapFragmentDialog fragmentDialog = new MapFragmentDialog();
+                        fragmentDialog.setLocation(location);
+                        fragmentDialog.setTargetFragment(LocationFragment.this, 1223);
+
+                        if (getActivity() != null)
+                            showFragment(fragmentDialog, getActivity().getSupportFragmentManager(), true);
+
+
+                    } else {
+                        firstLocation = location;
+                    }
+                } else {
                     btgps.setEnabled(true);
                     btgps.hideLoading();
+                    Toasty.error(getActivity(), "Fausse position detecter", Toasty.LENGTH_LONG).show();
 
-
-                    if (wakeLock != null && wakeLock.isHeld())
-                        wakeLock.release();
-
-
-                    if (locationManager != null) {
-                        locationManager.removeUpdates(this);
-                        locationManager = null;
-                    }
-
-                    MapFragmentDialog fragmentDialog = new MapFragmentDialog();
-                    fragmentDialog.setLocation(location);
-                    fragmentDialog.setTargetFragment(LocationFragment.this, 1223);
-
-
-                    showFragment(fragmentDialog, getActivity().getSupportFragmentManager(), true);
-
-
-                } else {
-                    firstLocation = location;
                 }
 
 
@@ -392,7 +425,8 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
 
 
         } else {
-            Toasty.info(getActivity(), "Precision " + location.getAccuracy() + " m", 4000);
+            if (getActivity() != null)
+                Toasty.info(getActivity(), "Precision " + location.getAccuracy() + " m", 4000);
         }
     }
 
@@ -477,10 +511,10 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
     public Uri getOutputMediaFileUri(int type) {
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type));
+            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type, salepoint.getMobile_id(), Constants.IMG_POS));
         } else
 
-            return FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileprovider", ImageLoad.getOutputMediaFile(getContext(), type));
+            return FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileprovider", ImageLoad.getOutputMediaFile(getContext(), type, salepoint.getMobile_id(), Constants.IMG_POS));
 
     }
 
@@ -553,7 +587,7 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
             String currentDateandTime = sdf.format(new Date());
 
-            canvas.drawText("Date: " + currentDateandTime, 20, 35, paint);
+            canvas.drawText("Date: " + DateUtils.todayDateTime(), 20, 35, paint);
 
        /*     ivPlv.setImageResource(android.R.color.transparent);
             PicassoSingleton.with(getActivity())
@@ -565,15 +599,23 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
             String imageBase64 = UtilBase64.bitmapToBase64String(mutableBitmap);
 
             // fridge.setPhotoFridge(imageBase64);
+            photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_POS).findFirst();
+
             realm.beginTransaction();
-            if (photo == null)
+            if (photo == null) {
                 photo = realm.createObject(Photo.class, PrimaryKeyFactory.nextKey(Photo.class));
 
-            photo.setImageID("pos_" + UUID.randomUUID());
-            photo.setDate(System.currentTimeMillis() / 1000 + "");
-            photo.setTypeID(salepoint.getMobile_id());
+                photo.setImageID("pos_" + UUID.randomUUID());
+
+                photo.setTypeID(salepoint.getMobile_id());
+
+                photo.setType(Constants.IMG_POS);
+            }
+
+            photo.setDate(DateUtils.todayDateTime() + "");
+            photo.setSynced(false);
+            photo.setUser_id(user.getId());
             photo.setImage(imageBase64);
-            photo.setType(Constants.IMG_POS);
             realm.commitTransaction();
 
         } catch (NullPointerException e) {
@@ -611,14 +653,18 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
                 salepoint.setOtherRefuseReason(etOtherReason.getText().toString());
 
             }
+            salepoint.setUser_id(user.getId());
         }
 
 
         if (spCommune.getSelectedItemPosition() > 0) {
-            Commune commune = realm.where(Commune.class).equalTo("name", spCommune.getSelectedItem().toString()).findFirst();
 
-            int id = commune.getId();
-            salepoint.setCommune(id);
+            // int communeId = communes.where().equalTo("name", spCommune.getSelectedItem().toString()).findFirst().getId();
+            int communeId = getCommuneId(user.getWilaya(), spCommune.getSelectedItem().toString());
+            // Commune commune = realm.where(Commune.class).equalTo("name", spCommune.getSelectedItem().toString()).findFirst();
+
+            //  int id = commune.getId();
+            salepoint.setCommune(communeId);
         } else {
             salepoint.setCommune(0);
         }
@@ -696,5 +742,26 @@ public class LocationFragment extends Fragment implements LocationListener, Loca
     @Override
     public void unsetLocation() {
         getLocation();
+    }
+
+
+    private void checkNotification() {
+        Notification notification;
+        if (salepoint.getNotificationId() != 0)
+            notification = realm.where(Notification.class).equalTo("id", salepoint.getNotificationId()).findFirst();
+        else
+            notification = null;
+        if (notification != null) {
+            for (ValidationConditon validationConditon : notification.getConditions()) {
+
+                if (validationConditon.getStatus() == 0 && validationConditon.getDataType().equals(Constants.IMG_POS)) {
+                    tvPos.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                    Log.e("notification", validationConditon.getDataType() + " ");
+                }
+            }
+
+
+        }
+
     }
 }

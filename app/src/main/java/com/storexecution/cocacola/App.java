@@ -24,6 +24,7 @@ public class App extends Application {
 
         Realm.init(this);
 
+
         FirebaseApp.initializeApp(this);
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true);
 
@@ -34,14 +35,17 @@ public class App extends Application {
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .allowQueriesOnUiThread(true)
                 .allowWritesOnUiThread(true)
-                .schemaVersion(8)
+               // .compactOnLaunch()
+                .schemaVersion(102)
                 .migration(new RealmDBMigration())
                 .build();
+
+
         Realm.setDefaultConfiguration(config);
         Realm realm = Realm.getDefaultInstance();
         PrimaryKeyFactory.init(realm);
         realm.close();
-
+       // Realm.compactRealm(config);
         FileDownloader.setupOnApplicationOnCreate(this)
                 .connectionCreator(new FileDownloadUrlConnection
                         .Creator(new FileDownloadUrlConnection.Configuration()
@@ -56,6 +60,7 @@ public class App extends Application {
                 .addInterceptor(new CalligraphyInterceptor(
                         new CalligraphyConfig.Builder()
                                 .setDefaultFontPath("fonts/OpenSans-Regular.ttf")
+
                                 .setFontAttrId(R.attr.fontPath)
                                 .build()))
                 .build());

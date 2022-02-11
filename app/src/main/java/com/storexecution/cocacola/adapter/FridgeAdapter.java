@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.model.Fridge;
+import com.storexecution.cocacola.model.Notification;
 import com.storexecution.cocacola.model.Photo;
+import com.storexecution.cocacola.model.ValidationConditon;
 import com.storexecution.cocacola.util.Constants;
 import com.storexecution.cocacola.util.RecyclerItemClickListener;
 
@@ -28,14 +30,16 @@ public class FridgeAdapter extends RecyclerView.Adapter<FridgeAdapter.FridgeView
     RealmList<Fridge> fridges;
     RecyclerItemClickListener mListner;
     LayoutInflater mInflater;
+    Notification notification;
     int fridgeIcon;
     Realm realm;
 
-    public FridgeAdapter(Context context, RealmList<Fridge> fridges, int fridgeIcon, @Nullable RecyclerItemClickListener listner) {
+    public FridgeAdapter(Context context, RealmList<Fridge> fridges, int fridgeIcon, Notification notification, @Nullable RecyclerItemClickListener listner) {
         this.context = context;
         this.fridges = fridges;
         this.mListner = listner;
         this.fridgeIcon = fridgeIcon;
+        this.notification = notification;
         this.mInflater = LayoutInflater.from(context);
         realm = Realm.getDefaultInstance();
     }
@@ -72,6 +76,8 @@ public class FridgeAdapter extends RecyclerView.Adapter<FridgeAdapter.FridgeView
         ImageView ivFridge;
         @BindView(R.id.flIndicator)
         FrameLayout flIndicator;
+        @BindView(R.id.ivWarning)
+        ImageView ivWarning;
 
         public FridgeViewHolder(@NonNull View itemView) {
 
@@ -83,26 +89,36 @@ public class FridgeAdapter extends RecyclerView.Adapter<FridgeAdapter.FridgeView
 
             ivFridge.setImageResource(fridgeIcon);
             validateCocaColaFridge(context, fridge, flIndicator);
+            if (notification != null) {
+                if (checkNotification(fridge.getMobileId()))
+                    ivWarning.setVisibility(View.VISIBLE);
+                else
+                    ivWarning.setVisibility(View.GONE);
+
+            } else {
+                ivWarning.setVisibility(View.GONE);
+            }
 
         }
+
     }
 
     private void validateCocaColaFridge(Context context, Fridge fridge, FrameLayout frameLayout) {
         boolean valid = true;
         boolean started = false;
-        Log.e("started",started+" ");
+        Log.e("started", started + " ");
         if (fridge.getAbused() >= 0) {
             started = true;
         } else {
             valid = false;
         }
-        Log.e("started",started+" ");
+        Log.e("started", started + " ");
         if (fridge.getFridgeOwner() > 0) {
             started = true;
         } else {
             valid = false;
         }
-        Log.e("started",started+" ");
+        Log.e("started", started + " ");
         if (fridge.getFridgeModel() > 0) {
             started = true;
         } else {
@@ -114,27 +130,27 @@ public class FridgeAdapter extends RecyclerView.Adapter<FridgeAdapter.FridgeView
 //        } else {
 //            valid = false;
 //        }
-        Log.e("started",started+" ");
+        Log.e("started", started + " ");
         if (fridge.getBarCode().length() > 0) {
             started = true;
         } else {
             valid = false;
         }
-        Log.e("started",started+" ");
-        if (fridge.getFridgeState() > 0) {
-            started = true;
-        } else {
-            valid = false;
-        }
-        Log.e("started",started+" ");
-        if (fridge.getFridgeState() == 2) {
-            if (fridge.getBreakDownType() > 0) {
-                started = true;
-            } else {
-                valid = false;
-            }
-        }
-        Log.e("started",started+" ");
+//        Log.e("started", started + " ");
+//        if (fridge.getFridgeState() > 0) {
+//            started = true;
+//        } else {
+//            valid = false;
+//        }
+        Log.e("started", started + " ");
+//        if (fridge.getFridgeState() == 2) {
+//            if (fridge.getBreakDownType() > 0) {
+//                started = true;
+//            } else {
+//                valid = false;
+//            }
+//        }
+        Log.e("started", started + " ");
         if (fridge.getIsOn() >= 0) {
 
             started = true;
@@ -162,6 +178,13 @@ public class FridgeAdapter extends RecyclerView.Adapter<FridgeAdapter.FridgeView
             started = true;
         }
 
+            Photo photo2 = realm.where(Photo.class).equalTo("TypeID", fridge.getMobileId()).and().equalTo("Type", Constants.IMG_FRIDGE_BARCODE).findFirst();
+        if (photo2 == null) {
+            valid = false;
+        } else {
+            started = true;
+        }
+
         if (valid)
             frameLayout.setBackgroundColor(context.getResources().getColor(R.color.colorGreen2, null));
         else if (started)
@@ -171,5 +194,32 @@ public class FridgeAdapter extends RecyclerView.Adapter<FridgeAdapter.FridgeView
             frameLayout.setBackgroundColor(context.getResources().getColor(R.color.colorAccent, null));
 
 
+    }
+
+
+    private boolean checkNotification(String fridgeId) {
+        for (ValidationConditon validationConditon : notification.getConditions()) {
+
+            if (validationConditon.getStatus() == 0 && validationConditon.getDataType().equals(Constants.IMG_FRIDGE)) {
+                Photo photo = realm.where(Photo.class).equalTo("Type", Constants.IMG_FRIDGE).and().equalTo("ImageID", validationConditon.getDataId()).and().equalTo("TypeID", fridgeId).findFirst();
+                if (photo != null) {
+
+                    return true;
+
+                }
+
+            }
+
+            if (validationConditon.getStatus() == 0 && validationConditon.getDataType().equals(Constants.IMG_FRIDGE_BARCODE)) {
+                Photo photo = realm.where(Photo.class).equalTo("Type", Constants.IMG_FRIDGE_BARCODE).and().equalTo("ImageID", validationConditon.getDataId()).and().equalTo("TypeID", fridgeId).findFirst();
+                if (photo != null) {
+                    return true;
+
+                }
+
+            }
+
+        }
+        return false;
     }
 }

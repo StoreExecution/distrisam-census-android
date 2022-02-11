@@ -1,6 +1,7 @@
 package com.storexecution.cocacola.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.model.ConcurrentFridge;
 import com.storexecution.cocacola.model.Fridge;
+import com.storexecution.cocacola.model.Notification;
+import com.storexecution.cocacola.model.ValidationConditon;
+import com.storexecution.cocacola.util.Constants;
 import com.storexecution.cocacola.util.RecyclerItemClickListener;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 import io.realm.RealmList;
 
 public class ConccurentFridgeAdapter extends RecyclerView.Adapter<ConccurentFridgeAdapter.FridgeViewHolder> {
@@ -27,12 +32,15 @@ public class ConccurentFridgeAdapter extends RecyclerView.Adapter<ConccurentFrid
     RecyclerItemClickListener mListner;
     LayoutInflater mInflater;
     int fridgeIcon;
+    Realm realm;
+    Notification notification;
 
-    public ConccurentFridgeAdapter(Context context, RealmList<ConcurrentFridge> fridges, int fridgeIcon, @Nullable RecyclerItemClickListener listner) {
+    public ConccurentFridgeAdapter(Context context, RealmList<ConcurrentFridge> fridges, int fridgeIcon, Notification notification, @Nullable RecyclerItemClickListener listner) {
         this.context = context;
         this.fridges = fridges;
         this.mListner = listner;
         this.fridgeIcon = fridgeIcon;
+        this.notification = notification;
         this.mInflater = LayoutInflater.from(context);
     }
 
@@ -66,6 +74,8 @@ public class ConccurentFridgeAdapter extends RecyclerView.Adapter<ConccurentFrid
     class FridgeViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.ivFridge)
         ImageView ivFridge;
+        @BindView(R.id.ivWarning)
+        ImageView ivWarning;
 
 
         public FridgeViewHolder(@NonNull View itemView) {
@@ -77,7 +87,29 @@ public class ConccurentFridgeAdapter extends RecyclerView.Adapter<ConccurentFrid
         public void bind(Context context, int position) {
 
             ivFridge.setImageResource(fridgeIcon);
+            if (notification != null) {
+                if (checkNotification(fridges.get(position).getMobile_id()))
+                    ivWarning.setVisibility(View.VISIBLE);
+                else
+                    ivWarning.setVisibility(View.GONE);
+
+            } else {
+                ivWarning.setVisibility(View.GONE);
+            }
 
         }
+
+        private boolean checkNotification(String fridgeId) {
+            for (ValidationConditon validationConditon : notification.getConditions()) {
+
+                if (validationConditon.getStatus() == 0 && validationConditon.getDataType().equals(Constants.IMG_CFRIDGE) && validationConditon.getDataId().equals(fridgeId)) {
+
+                    return true;
+                }
+
+            }
+            return false;
+        }
+
     }
 }

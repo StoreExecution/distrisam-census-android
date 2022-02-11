@@ -32,10 +32,15 @@ import com.google.android.gms.vision.barcode.Barcode;
 import com.storexecution.cocacola.BuildConfig;
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.model.Fridge;
+import com.storexecution.cocacola.model.Notification;
 import com.storexecution.cocacola.model.Photo;
+import com.storexecution.cocacola.model.RTMSalepoint;
 import com.storexecution.cocacola.model.Salepoint;
+import com.storexecution.cocacola.model.User;
+import com.storexecution.cocacola.model.ValidationConditon;
 import com.storexecution.cocacola.util.Base64Util;
 import com.storexecution.cocacola.util.Constants;
+import com.storexecution.cocacola.util.DateUtils;
 import com.storexecution.cocacola.util.ImageLoad;
 import com.storexecution.cocacola.util.PrimaryKeyFactory;
 import com.storexecution.cocacola.util.Session;
@@ -74,6 +79,8 @@ public class BarCodeFragment extends Fragment {
     ImageView fabPrev;
     @BindView(R.id.fabNext)
     ImageView fabNext;
+    @BindView(R.id.tvBarcode)
+    TextView tvBarcode;
 
     /**
      * ButterKnife Code
@@ -84,6 +91,7 @@ public class BarCodeFragment extends Fragment {
     Realm realm;
     Toast toast;
     Photo photo;
+    User user;
 
     public BarCodeFragment() {
         // Required empty public constructor
@@ -100,12 +108,12 @@ public class BarCodeFragment extends Fragment {
         salepoint = session.getSalepoint();
         realm = Realm.getDefaultInstance();
         etBarCode.setText(salepoint.getBarcode());
-
+        user = realm.where(User.class).findFirst();
         photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_BARCODE).findFirst();
         if (photo != null)
             ivPhoto.setImageBitmap(Base64Util.Base64ToBitmap(photo.getImage()));
 
-
+        checkNotification();
         return v;
     }
 
@@ -161,10 +169,10 @@ public class BarCodeFragment extends Fragment {
     public Uri getOutputMediaFileUri(int type) {
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type));
+            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type, salepoint.getMobile_id(), Constants.IMG_BARCODE));
         } else
 
-            return FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileprovider", ImageLoad.getOutputMediaFile(getContext(), type));
+            return FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileprovider", ImageLoad.getOutputMediaFile(getContext(), type, salepoint.getMobile_id(), Constants.IMG_BARCODE));
 
     }
 
@@ -232,12 +240,12 @@ public class BarCodeFragment extends Fragment {
             Canvas canvas = new Canvas(mutableBitmap);
             Paint paint = new Paint();
             paint.setColor(Color.YELLOW);
-            paint.setTextSize(24);
+            paint.setTextSize(60);
             paint.setTextAlign(Paint.Align.LEFT);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-            String currentDateandTime = sdf.format(new Date());
 
-            canvas.drawText("Date: " + currentDateandTime, 20, 35, paint);
+
+            canvas.drawText("Date: " + DateUtils.todayDateTime(), 35, 65, paint);
 
        /*     ivPlv.setImageResource(android.R.color.transparent);
             PicassoSingleton.with(getActivity())
@@ -249,15 +257,23 @@ public class BarCodeFragment extends Fragment {
             String imageBase64 = UtilBase64.bitmapToBase64String(mutableBitmap);
 
             // fridge.setPhotoFridge(imageBase64);
+            photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_BARCODE).findFirst();
+
             realm.beginTransaction();
-            if (photo == null)
+            if (photo == null) {
                 photo = realm.createObject(Photo.class, PrimaryKeyFactory.nextKey(Photo.class));
 
-            photo.setImageID("pos_" + UUID.randomUUID());
-            photo.setDate(System.currentTimeMillis() / 1000 + "");
-            photo.setTypeID(salepoint.getMobile_id());
+                photo.setImageID("pos_" + UUID.randomUUID());
+
+                photo.setTypeID(salepoint.getMobile_id());
+
+                photo.setType(Constants.IMG_BARCODE);
+            }
+            photo.setDate(DateUtils.todayDateTime() + "");
+            photo.setSynced(false);
+            photo.setUser_id(user.getId());
             photo.setImage(imageBase64);
-            photo.setType(Constants.IMG_BARCODE);
+
             realm.commitTransaction();
 
         } catch (NullPointerException e) {
@@ -287,6 +303,7 @@ public class BarCodeFragment extends Fragment {
         if (etBarCode.getText().toString().length() > 0)
             salepoint.setBarcode(etBarCode.getText().toString());
 
+        salepoint.setUser_id(user.getId());
 
         session.setSalepoint(salepoint);
 
@@ -385,6 +402,14 @@ public class BarCodeFragment extends Fragment {
             completd = false;
         }
 
+
+        if (salepoint.getFacades() > 0) {
+            started = true;
+        } else {
+            completd = false;
+        }
+
+
         return completd;
 
 
@@ -456,7 +481,6 @@ public class BarCodeFragment extends Fragment {
         }
 
 
-
         if (salepoint.getPurchaseRouibaLow().length() > 0) {
             started = true;
         } else {
@@ -485,19 +509,19 @@ public class BarCodeFragment extends Fragment {
         }
 
 
-        if (salepoint.getPurchaseWaterLow().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
-
-        if (salepoint.getPurchaseWaterHigh().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
+//        if (salepoint.getPurchaseWaterLow().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
+//
+//        if (salepoint.getPurchaseWaterHigh().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
 
 
         if (salepoint.getPurchaseJuiceLow().length() > 0) {
@@ -513,44 +537,44 @@ public class BarCodeFragment extends Fragment {
 
         }
 
-        if (salepoint.getPurchaseJuicePetLow().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
+//        if (salepoint.getPurchaseJuicePetLow().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
+//        if (salepoint.getPurchaseJuicePetHigh().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
 
-        }
-        if (salepoint.getPurchaseJuicePetHigh().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
-
-        if (salepoint.getPurchaseEnergyDrinkLow().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
-        if (salepoint.getPurchaseEnergyDrinkHigh().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
-
-        if (salepoint.getPurchaseOtherLow().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
-        if (salepoint.getPurchaseOtherHigh().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
+//        if (salepoint.getPurchaseEnergyDrinkLow().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
+//        if (salepoint.getPurchaseEnergyDrinkHigh().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
+//
+//        if (salepoint.getPurchaseOtherLow().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
+//        if (salepoint.getPurchaseOtherHigh().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
         if (salepoint.getHasWarmStock() >= 0) {
             started = true;
         } else {
@@ -774,17 +798,17 @@ public class BarCodeFragment extends Fragment {
 //        } else {
 //            completd = false;
 //        }
-        Photo photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_PLV_Internal).findFirst();
-        if (photo != null) {
+        long photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_PLV_Internal).count();
+        if (photo > 0) {
             started = true;
 
-        } else {
+        } if (photo < 2) {
             completd = false;
         }
 
-        if (salepoint.getSalepointType() == Constants.TYPE_CAFE || salepoint.getSalepointType() == Constants.TYPE_FASTFOOD) {
-            return true;
-        }
+//        if (salepoint.getSalepointType() == Constants.TYPE_CAFE || salepoint.getSalepointType() == Constants.TYPE_FASTFOOD) {
+//            return true;
+//        }
 
 
         return completd;
@@ -844,20 +868,20 @@ public class BarCodeFragment extends Fragment {
         if (fridge.getBarCode().length() == 0) {
             return false;
         }
-        if (fridge.getFridgeState() == 0) {
-            return false;
-        }
-        if (fridge.getFridgeState() == 2) {
-            if (fridge.getBreakDownType() == 0)
-                return false;
-        }
+//        if (fridge.getFridgeState() == 0) {
+//            return false;
+//        }
+//        if (fridge.getFridgeState() == 2) {
+//            if (fridge.getBreakDownType() == 0)
+//                return false;
+//        }
         if (fridge.getIsOn() < 0) {
 
             return false;
         }
         if (fridge.getIsOn() == 1) {
-            if (fridge.getFridgeTemp().length() == 0)
-                return false;
+//            if (fridge.getFridgeTemp().length() == 0)
+//                return false;
         }
         if (fridge.getExternal() == -1) {
 
@@ -868,6 +892,12 @@ public class BarCodeFragment extends Fragment {
         if (photo == null) {
             return false;
         }
+
+        Photo photo2 = realm.where(Photo.class).equalTo("TypeID", fridge.getMobileId()).and().equalTo("Type", Constants.IMG_FRIDGE_BARCODE).findFirst();
+        if (photo2 == null) {
+            valid = false;
+        }
+
 
         return valid;
 
@@ -888,7 +918,13 @@ public class BarCodeFragment extends Fragment {
             salepoint.setMobileModificationDate(currentMilis);
             if (salepoint.getFinishedMobileDate() == 0)
                 salepoint.setFinishedMobileDate(currentMilis);
+            if (salepoint.getRtmId() > 0) {
 
+                RTMSalepoint rtmSalepoint = realm.where(RTMSalepoint.class).equalTo("id", salepoint.getRtmId()).findFirst();
+                if (rtmSalepoint != null)
+                    rtmSalepoint.setDone(1);
+
+            }
             salepoint.setSynced(false);
             realm.insertOrUpdate(salepoint);
             session.clearSalepoint();
@@ -966,12 +1002,12 @@ public class BarCodeFragment extends Fragment {
 
 
                 eplv = true;
-                iplv = true;
+                iplv = checkInternalPlv();
                 audit = true;
 
             } else if (salepoint.getSalepointType() == Constants.TYPE_RESTAURANT || salepoint.getSalepointType() == Constants.TYPE_FASTFOOD || salepoint.getSalepointType() == Constants.TYPE_CAFE) {
                 eplv = checkExternalPlv();
-                iplv = true;
+                iplv = checkInternalPlv();
                 audit = checkAudit();
             } else {
 
@@ -991,6 +1027,26 @@ public class BarCodeFragment extends Fragment {
         }
 
         //  return false;
+    }
+
+    private void checkNotification() {
+        Notification notification;
+        if (salepoint.getNotificationId() != 0)
+            notification = realm.where(Notification.class).equalTo("id", salepoint.getNotificationId()).findFirst();
+        else
+            notification = null;
+        if (notification != null) {
+            for (ValidationConditon validationConditon : notification.getConditions()) {
+
+                if (validationConditon.getStatus() == 0 && validationConditon.getDataType().equals(Constants.IMG_BARCODE)) {
+                    tvBarcode.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                    Log.e("notification", validationConditon.getDataType() + " ");
+                }
+
+            }
+
+
+        }
     }
 
 

@@ -11,8 +11,11 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.storexecution.cocacola.model.Commune;
+import com.storexecution.cocacola.model.Daira;
 import com.storexecution.cocacola.model.LoginResponse;
 import com.storexecution.cocacola.model.User;
+import com.storexecution.cocacola.model.Wilaya;
 import com.storexecution.cocacola.network.ApiEndpointInterface;
 
 import com.storexecution.cocacola.network.RetrofitClient;
@@ -20,6 +23,9 @@ import com.storexecution.cocacola.util.AlarmTask;
 import com.storexecution.cocacola.util.AppVersion;
 import com.storexecution.cocacola.util.Constants;
 import com.storexecution.cocacola.util.SharedPrefUtil;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,6 +49,9 @@ public class LoginActivity extends AppCompatActivity {
     EditText etPasssword;
     @BindView(R.id.btLogin)
     Button btLogin;
+
+    @BindView(R.id.btSignUp)
+    Button btSignUp;
     @BindView(R.id.tvVersion)
     TextView tvVersion;
     /**
@@ -66,9 +75,25 @@ public class LoginActivity extends AppCompatActivity {
         realm = Realm.getDefaultInstance();
         user = realm.where(User.class).findFirst();
         sharedPrefUtil = SharedPrefUtil.getInstance(getApplicationContext());
-        tvVersion.setText("Version : "+ AppVersion.getVersionName(this));
+        tvVersion.setText("Version : " + AppVersion.getVersionName(this));
 
+        if (!sharedPrefUtil.getBoolean("wilaya", false))
+            try {
+                InputStream inputStream = getAssets().open("algeria_cities.json");
 
+                realm.beginTransaction();
+                realm.delete(Wilaya.class);
+                realm.delete(Daira.class);
+                realm.delete(Commune.class);
+                realm.createOrUpdateAllFromJson(Wilaya.class, inputStream);
+                realm.commitTransaction();
+                sharedPrefUtil.putBoolean("wilaya", true);
+                Wilaya wilaya = realm.where(Wilaya.class).equalTo("id", 16).findFirst();
+                Daira daira = wilaya.getDairas().first();
+                Log.e("wila", daira.getName());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         if (sharedPrefUtil.getBoolean(Constants.LOGGED, false) == false) {
             Toasty.warning(getApplicationContext(), "Veuillez vous connecter ", 3000).show();
@@ -153,6 +178,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @OnClick(R.id.btSignUp)
+    public void signup() {
+
+        startActivity(new Intent(this, SignupActivity.class));
     }
 
 }

@@ -144,6 +144,7 @@ public class SatisfactionAuditFragment extends Fragment {
             i++;
 
         }
+
         smileRating.setTitle(SmileyRating.Type.TERRIBLE, "Trés Mauvais");
         smileRating.setTitle(SmileyRating.Type.BAD, "Mauvais");
         smileRating.setTitle(SmileyRating.Type.OKAY, "Neutre");

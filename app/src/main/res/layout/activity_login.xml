@@ -98,12 +98,35 @@
                 android:id="@+id/btLogin"
                 android:layout_width="250dp"
                 android:layout_height="50dp"
-                android:layout_marginVertical="30dp"
+                android:layout_marginVertical="20dp"
                 android:background="@drawable/login_button"
                 android:text="Connexion"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:textColor="@color/colorWhite" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="- OU -"
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold"
+                android:textSize="20sp"
+
+                />
+
+            <Button
+                android:id="@+id/btSignUp"
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:layout_marginVertical="20dp"
+                android:background="@drawable/login_button_outline"
+                android:text="Crée un compte"
+
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="@color/colorAccent" />
 
 
         </LinearLayout>

@@ -11,6 +11,7 @@ public class Daira extends RealmObject {
     String code;
     String name_ar;
     String name;
+
     RealmList<Commune> communes;
 
     public int getId() {

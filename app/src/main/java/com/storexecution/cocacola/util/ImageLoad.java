@@ -26,7 +26,9 @@ import java.util.Locale;
  */
 public class ImageLoad {
     private static Target taget;
-    private static final String IMAGE_DIRECTORY_NAME = "cocacola";
+
+    private static final String ROOT_IMAGE_DIRECTORY_NAME = "cocacola";
+    private static String IMAGE_DIRECTORY_NAME = "cocacola";
     public static final int MEDIA_TYPE_IMAGE = 1;
 
     private static Bitmap icon;
@@ -57,7 +59,6 @@ public class ImageLoad {
                     }
 
 
-
                     @Override
                     public void onPrepareLoad(Drawable placeHolderDrawable) {
                         icon = BitmapFactory.decodeResource(c.getResources(),
@@ -68,7 +69,6 @@ public class ImageLoad {
                 });
         return icon;
     }
-
 
 
     public static Bitmap decodeScaledBitmapFromSdCard(String filePath,
@@ -91,21 +91,27 @@ public class ImageLoad {
 
     public static Bitmap decodeScaledBitmapFromSdCard(Uri filePath,
                                                       int reqWidth, int reqHeight, Context context) {
+
+        reqWidth = 800;
+        reqHeight = 600;
+
         try {
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        options.inPreferredConfig = Bitmap.Config.RGB_565;
+            // First decode with inJustDecodeBounds=true to check dimensions
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            options.inPreferredConfig = Bitmap.Config.RGB_565;
 
-            BitmapFactory.decodeStream(context.getContentResolver().openInputStream(filePath),null, options);
+            BitmapFactory.decodeStream(context.getContentResolver().openInputStream(filePath), null, options);
 
 
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeStream(context.getContentResolver().openInputStream(filePath),null, options);
+            // options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+            Log.e("inSampleSize", options.inSampleSize + " ");
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            return BitmapFactory.decodeStream(context.getContentResolver().openInputStream(filePath), null, options);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -118,7 +124,8 @@ public class ImageLoad {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
-        int inSampleSize = 1;
+
+        int inSampleSize = 2;
 
         if (height > reqHeight || width > reqWidth) {
 
@@ -135,7 +142,8 @@ public class ImageLoad {
         return inSampleSize;
     }
 
-    public static File getOutputMediaFile3(int type) {
+    public static File getOutputMediaFile3(int type, String mobile_id, String imageType) {
+
 
         // External sdcard location
         File mediaStorageDir = new File(
@@ -148,7 +156,7 @@ public class ImageLoad {
             if (!mediaStorageDir.mkdirs()) {
                 Log.d(IMAGE_DIRECTORY_NAME, "Oops! Failed create "
                         + IMAGE_DIRECTORY_NAME + " directory");
-                Log.e("return Null11","return Null11");
+                Log.e("return Null11", "return Null11");
                 return null;
             }
         }
@@ -159,16 +167,16 @@ public class ImageLoad {
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "IMG_" + timeStamp + ".jpg");
+                    + "IMG_" + mobile_id + "_" + imageType + "_ " + timeStamp + ".jpg");
         } else {
-            Log.e("return Null","return Null");
+            Log.e("return Null", "return Null");
             return null;
         }
 
         return mediaFile;
     }
 
-    public static File getOutputMediaFile(Context context,int type) {
+    public static File getOutputMediaFile(Context context, int type, String mobile_id, String imageType) {
 
         // External sdcard location
         File mediaStorageDir = new File(
@@ -180,7 +188,7 @@ public class ImageLoad {
             if (!mediaStorageDir.mkdirs()) {
                 Log.d(IMAGE_DIRECTORY_NAME, "Oops! Failed create "
                         + IMAGE_DIRECTORY_NAME + " directory");
-                Log.e("return Null11","return Null11");
+                Log.e("return Null11", "return Null11");
                 return null;
             }
         }
@@ -191,46 +199,44 @@ public class ImageLoad {
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "IMG_" + timeStamp + ".jpg");
+                    + "IMG_" + mobile_id + "_" + imageType + "_ " + timeStamp + ".jpg");
         } else {
-            Log.e("return Null","return Null");
+            Log.e("return Null", "return Null");
             return null;
         }
 
         return mediaFile;
     }
 
-        private static File getOutputMediaFile2(int type){
-            // To be safe, you should check that the SDCard is mounted
-            // using Environment.getExternalStorageState() before doing this.
+    private static File getOutputMediaFile2(int type, String mobile_id, String imageType) {
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
 
-            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_PICTURES), IMAGE_DIRECTORY_NAME);
-            // This location works best if you want the created images to be shared
-            // between applications and persist after your app has been uninstalled.
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), IMAGE_DIRECTORY_NAME);
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
 
-            // Create the storage directory if it does not exist
-            if (! mediaStorageDir.exists()){
-                if (! mediaStorageDir.mkdirs()){
-                    Log.d(IMAGE_DIRECTORY_NAME, "failed to create directory");
-                    return null;
-                }
-            }
-
-            // Create a media file name
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            File mediaFile;
-            if (type == MEDIA_TYPE_IMAGE){
-                mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                        "IMG_"+ timeStamp + ".jpg");
-            }  else {
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d(IMAGE_DIRECTORY_NAME, "failed to create directory");
                 return null;
             }
-
-            return mediaFile;
         }
 
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File mediaFile;
+        if (type == MEDIA_TYPE_IMAGE) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                    "IMG_" + mobile_id + "_" + imageType + "_ " + timeStamp + ".jpg");
+        } else {
+            return null;
+        }
 
-
-
+        return mediaFile;
     }
+
+
+}

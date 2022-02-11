@@ -6,6 +6,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +19,7 @@ import com.google.gson.Gson;
 import com.storexecution.cocacola.MainActivity;
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.adapter.SynchAdapter;
+import com.storexecution.cocacola.model.ActivityChange;
 import com.storexecution.cocacola.model.Photo;
 import com.storexecution.cocacola.model.RequestResponse;
 import com.storexecution.cocacola.model.Salepoint;
@@ -24,8 +27,10 @@ import com.storexecution.cocacola.model.Suivi;
 import com.storexecution.cocacola.model.User;
 import com.storexecution.cocacola.network.ApiEndpointInterface;
 import com.storexecution.cocacola.network.RetrofitClient;
+import com.storexecution.cocacola.util.Base64Util;
 import com.storexecution.cocacola.util.Constants;
 import com.storexecution.cocacola.util.GsonUtils;
+import com.storexecution.cocacola.util.ImageLoad;
 import com.storexecution.cocacola.util.RecyclerItemClickListener;
 import com.storexecution.cocacola.util.SharedPrefUtil;
 
@@ -64,34 +69,40 @@ public class SyncActivity extends AppCompatActivity {
     RealmList<Salepoint> salepoints;
     RealmList<Salepoint> allSalepoints;
     RealmList<Suivi> suivis;
+    RealmList<ActivityChange> changes;
     RealmList<Photo> photos;
     SynchAdapter synchAdapter;
 
+
+    RetrofitClient retrofitClient;
+    Gson gson;
+    Map<String, String> headers;
     SharedPrefUtil sharedPrefUtil;
     User user;
 
     ApiEndpointInterface service;
-    RetrofitClient retrofitClient;
-    Gson gson;
-    Map<String, String> headers;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sync);
 
-        service = RetrofitClient.getRetrofitInstance().create(ApiEndpointInterface.class);
+
         ButterKnife.bind(this);
         gson = new Gson();
         realm = Realm.getDefaultInstance();
         user = realm.where(User.class).findFirst();
+        service = RetrofitClient.getRetrofitInstance().create(ApiEndpointInterface.class);
         sharedPrefUtil = SharedPrefUtil.getInstance(getApplicationContext());
+        headers = new HashMap<>();
+        headers.put("Authorization", "bearer " + sharedPrefUtil.getString(Constants.ACCESS_TOKEN, ""));
+        updateNotSynced();
         salepoints = new RealmList<>();
         suivis = new RealmList<>();
         allSalepoints = new RealmList<>();
+        changes = new RealmList<>();
         photos = new RealmList<>();
-        allSalepoints.addAll(realm.where(Salepoint.class).sort("createdMobileDate", Sort.DESCENDING).findAll());
+        allSalepoints.addAll(realm.where(Salepoint.class).equalTo("user_id", user.getId()).sort("createdMobileDate", Sort.DESCENDING).findAll());
 
 
         synchAdapter = new SynchAdapter(this, allSalepoints, new RecyclerItemClickListener() {
@@ -103,24 +114,30 @@ public class SyncActivity extends AppCompatActivity {
 
         rvSalepoints.setLayoutManager(new LinearLayoutManager(this));
         rvSalepoints.setAdapter(synchAdapter);
-        headers = new HashMap<>();
-        headers.put("Authorization", "bearer " + sharedPrefUtil.getString(Constants.ACCESS_TOKEN, ""));
-        updateNotSynced();
+
 
     }
 
     public void updateNotSynced() {
-        long countSalepoint = realm.where(Salepoint.class).equalTo("synced", false).count();
+        long countSalepoint = realm.where(Salepoint.class).equalTo("synced", false).and().equalTo("user_id", user.getId()).and().notEqualTo("error",true).count();
         long countTracking = realm.where(Suivi.class).equalTo("synced", false).count();
-        long countPhoto = realm.where(Photo.class).equalTo("synced", false).count();
+        long countPhoto = realm.where(Photo.class).equalTo("synced", false).equalTo("user_id", user.getId()).count();
+        long countchange = realm.where(ActivityChange.class).equalTo("synced", false).count();
 
-        tvSync.setText("S: " + countSalepoint + " / P: " + countPhoto + " / T: " + countTracking);
+        tvSync.setText("S: " + countSalepoint + " / P: " + countPhoto + " / T: " + countTracking + " / C: " + countchange);
     }
 
     SweetAlertDialog pDialog;
-    int size;
+    long size;
     int synced = 0;
     int limit = 100;
+    int error = 0;
+    int failed = 0;
+
+    @OnClick(R.id.fabSyncImage)
+    public void syncImages() {
+        startActivity(new Intent(this, ImageSyncActivity.class));
+    }
 
     @OnClick(R.id.fabSync)
     public void sync() {
@@ -134,24 +151,48 @@ public class SyncActivity extends AppCompatActivity {
         photos.clear();
 
         synced = 0;
-        salepoints.addAll(realm.where(Salepoint.class).equalTo("synced", false).findAll());
+        error = 0;
+        failed = 0;
+        attemp = 0;
+        salepoints.addAll(realm.where(Salepoint.class).equalTo("synced", false).and().equalTo("user_id", user.getId()).and().notEqualTo("error",true).sort("createdMobileDate", Sort.DESCENDING).findAll());
 
         suivis.addAll(realm.where(Suivi.class).equalTo("synced", false).findAll());
-        photos.addAll(realm.where(Photo.class).equalTo("synced", false).findAll());
+        photos.addAll(realm.where(Photo.class).equalTo("synced", false).and().equalTo("user_id", user.getId()).and().notEqualTo("error",true).findAll());
+        changes.addAll(realm.where(ActivityChange.class).equalTo("synced", false).findAll());
         size = salepoints.size() + suivis.size() + photos.size();
         Log.e("sizes ", " " + salepoints.size() + " " + suivis.size() + " " + photos.size());
         // syncTrackings(suivis, 0);
         //syncTracks();
-        syncPhotos(photos, 0);
+        syncChange(changes, 0);
         //syncSalepoints(salepoints, 0);
+    }
+
+    int attemp = 0;
+
+
+    @OnClick(R.id.fabSyncTracks)
+    public void syncTrackOnly() {
+        attemp = 0;
+        // size = realm.where(Suivi.class).equalTo("synced", false).count();
+
+        pDialog = new SweetAlertDialog(SyncActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+        pDialog.setTitleText("Sychronisation");
+        pDialog.setCancelable(false);
+        pDialog.show();
+        suivis.clear();
+        syncTracks();
     }
 
     public synchronized void syncTracks() {
         suivis.clear();
         suivis.addAll(realm.where(Suivi.class).equalTo("synced", false).limit(limit).findAll());
-        if (suivis.size() > 0)
+        if (suivis.size() > 0) {
+            synced = 0;
+            size = realm.where(Suivi.class).equalTo("synced", false).count();
+            attemp += 1;
             syncTrackings2(suivis);
-        else {
+        } else {
             if (pDialog != null && pDialog.isShowing())
                 pDialog.dismiss();
             synchAdapter.notifyDataSetChanged();
@@ -168,7 +209,7 @@ public class SyncActivity extends AppCompatActivity {
         Suivi suivi = new Suivi();
 
 
-        pDialog.setContentText("Sychronisation " + synced + "/" + size);
+        pDialog.setContentText("Sychronisation Tracking " + synced + "/" + size + " attemp : " + attemp);
 
 
         service.postSuivi(headers, GsonUtils.trackingListToJson(s)).enqueue(new Callback<RequestResponse>() {
@@ -193,7 +234,7 @@ public class SyncActivity extends AppCompatActivity {
 
                 } else {
                     if (response.code() == 400 || response.code() == 500)
-                        triggerRebirth(SyncActivity.this);
+                        triggerRebirth(SyncActivity.this, response.code(), response.errorBody().toString());
                     else
                         syncTracks();
 
@@ -205,9 +246,13 @@ public class SyncActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<RequestResponse> call, Throwable t) {
                 t.printStackTrace();
-                if (pDialog != null && pDialog.isShowing())
-                    pDialog.dismiss();
-                synchAdapter.notifyDataSetChanged();
+                if (attemp <= 3)
+                    syncTracks();
+                else {
+                    if (pDialog != null && pDialog.isShowing())
+                        pDialog.dismiss();
+                    synchAdapter.notifyDataSetChanged();
+                }
 
             }
         });
@@ -224,7 +269,7 @@ public class SyncActivity extends AppCompatActivity {
         Suivi suivi = new Suivi();
         if (index < toSync.size()) {
             synced++;
-            pDialog.setContentText("Sychronisation " + synced + "/" + size);
+            pDialog.setContentText("Sychronisation Tracking " + synced + "/" + size);
             suivi = realm.copyFromRealm(toSync.get(index));
 
 
@@ -252,7 +297,7 @@ public class SyncActivity extends AppCompatActivity {
                         }
                     } else {
                         if (response.code() == 400 || response.code() == 500)
-                            triggerRebirth(SyncActivity.this);
+                            triggerRebirth(SyncActivity.this, response.code(), response.errorBody().toString());
                         else
                             syncTrackings(toSync, (index + 1));
 
@@ -288,6 +333,22 @@ public class SyncActivity extends AppCompatActivity {
         return count == 0;
     }
 
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
+
     private void syncPhotos(RealmList<Photo> toSync, int index) {
 
 
@@ -295,12 +356,18 @@ public class SyncActivity extends AppCompatActivity {
         Photo photo = new Photo();
         if (index < toSync.size()) {
             synced++;
-            pDialog.setContentText("Sychronisation Photos" + synced + "/" + size);
+            pDialog.setContentText("Sychronisation Photos " + synced + "/" + size);
             photo = realm.copyFromRealm(toSync.get(index));
             Photo photo2 = realm.copyFromRealm(toSync.get(index));
 
             photo2.setImage("");
             Log.e("sphotoe", gson.toJson(photo2));
+
+            if (photo.getImage().getBytes().length >= (1024 * 500)) {
+                Bitmap img = Base64Util.Base64ToBitmap(photo.getImage(), 1);
+                img = getResizedBitmap(img, 800);
+                photo.setImage(Base64Util.bitmapToBase64String(img, 100));
+            }
 
             service.postImage(headers, gson.toJson(photo)).enqueue(new Callback<RequestResponse>() {
                 @Override
@@ -322,7 +389,7 @@ public class SyncActivity extends AppCompatActivity {
                         }
                     } else {
                         if (response.code() == 400 || response.code() == 500)
-                            triggerRebirth(SyncActivity.this);
+                            triggerRebirth(SyncActivity.this, response.code(), response.errorBody().toString());
                         else
                             syncPhotos(toSync, (index + 1));
 
@@ -352,6 +419,70 @@ public class SyncActivity extends AppCompatActivity {
     }
 
 
+    private void syncChange(RealmList<ActivityChange> toSync, int index) {
+
+
+        Log.e("syncActivityChanges", index + " ");
+        ActivityChange photo = new ActivityChange();
+        if (index < toSync.size()) {
+            synced++;
+            pDialog.setContentText("Sychronisation ActivityChanges" + synced + "/" + toSync.size());
+            photo = realm.copyFromRealm(toSync.get(index));
+            ActivityChange photo2 = realm.copyFromRealm(toSync.get(index));
+
+            //photo2.setImage("");
+            Log.e("sphotoe", gson.toJson(photo2));
+
+            service.postActivityChange(headers, gson.toJson(photo)).enqueue(new Callback<RequestResponse>() {
+                @Override
+                public void onResponse(Call<RequestResponse> call, Response<RequestResponse> response) {
+
+                    Log.e("syncActivityChanges", gson.toJson(response.body()) + " ");
+
+                    if (response.code() == 200) {
+                        realm.beginTransaction();
+
+                        toSync.get(index).setSynced(true);
+                        realm.commitTransaction();
+
+                        if (index + 1 < toSync.size())
+                            syncChange(toSync, (index + 1));
+                        else {
+                            syncPhotos(photos, 0);
+
+                        }
+                    } else {
+                        if (response.code() == 400 || response.code() == 500)
+                            triggerRebirth(SyncActivity.this, response.code(), response.errorBody().toString());
+                        else
+                            syncChange(toSync, (index + 1));
+
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call<RequestResponse> call, Throwable t) {
+                    t.printStackTrace();
+                    if (index + 1 < toSync.size())
+                        syncChange(toSync, (index + 1));
+                    else {
+                        syncPhotos(photos, 0);
+
+                    }
+
+                }
+            });
+        } else {
+            syncPhotos(photos, 0);
+
+        }
+
+        synchAdapter.notifyDataSetChanged();
+
+    }
+
+
     private void syncSalepoints(RealmList<Salepoint> toSync, int index) {
 
 
@@ -360,7 +491,7 @@ public class SyncActivity extends AppCompatActivity {
         Salepoint photo = new Salepoint();
         if (index < toSync.size()) {
             synced++;
-            pDialog.setContentText("Sychronisation POS" + synced + "/" + size);
+            pDialog.setContentText("Sychronisation POS " + synced + "/" + size);
             photo = realm.copyFromRealm(toSync.get(index));
             Salepoint photo2 = realm.copyFromRealm(toSync.get(index));
 
@@ -387,10 +518,18 @@ public class SyncActivity extends AppCompatActivity {
 //                                pDialog.dismiss();
 //                            synchAdapter.notifyDataSetChanged();
                         }
+                    } else if (response.code() == 403) {
+                        realm.beginTransaction();
+
+                        toSync.get(index).setError(true);
+                        realm.commitTransaction();
+                        if (pDialog != null && pDialog.isShowing())
+                            pDialog.dismiss();
+                        synchAdapter.notifyDataSetChanged();
                     } else {
                         //  Toasty.error(getApplicationContext(), "Vous etes deconnecter", 5000).show();
                         if (response.code() == 400 || response.code() == 500)
-                            triggerRebirth(SyncActivity.this);
+                            triggerRebirth(SyncActivity.this, response.code(), response.errorBody().toString());
                         else {
                             syncSalepoints(toSync, (index + 1));
                         }
@@ -433,10 +572,10 @@ public class SyncActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    public void triggerRebirth(Context context) {
+    public void triggerRebirth(Context context, int status, String error) {
         if (pDialog != null && pDialog.isShowing())
             pDialog.dismiss();
-        Toasty.error(getApplicationContext(), "Vous etes deconnecter", 5000).show();
+        Toasty.error(getApplicationContext(), "Vous etes deconnecter - erreur code : " + status + " " + error, 5000).show();
         SharedPrefUtil sharedPrefUtil = SharedPrefUtil.getInstance(getApplicationContext());
 
 

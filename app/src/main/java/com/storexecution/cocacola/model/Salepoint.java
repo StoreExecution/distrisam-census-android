@@ -17,7 +17,7 @@ public class Salepoint extends RealmObject {
 
     @PrimaryKey
     String mobile_id;
-
+    int user_id;
     String posName;
     String ownerName;
     String ownerPhone;
@@ -120,6 +120,7 @@ public class Salepoint extends RealmObject {
     double accurency;
     boolean isMock;
     boolean synced;
+    boolean error;
     int externalFridge;
     int wantToSellSoda;
     int cocacolaCombo;
@@ -133,6 +134,9 @@ public class Salepoint extends RealmObject {
     int refuseReason;
     String otherRefuseReason;
     int posSystem;
+    int facades;
+    int rtmId;
+    int notificationId;
 
     public Salepoint() {
         MetalRacks = new RealmList<>();
@@ -228,6 +232,7 @@ public class Salepoint extends RealmObject {
         refuseReason = 0;
         otherRefuseReason = "";
         posSystem = -1;
+        facades = 0;
     }
 
     public void setVisitdays(RealmList<Integer> visitdays) {
@@ -964,6 +969,46 @@ public class Salepoint extends RealmObject {
 
     public void setPosSystem(int posSystem) {
         this.posSystem = posSystem;
+    }
+
+    public int getFacades() {
+        return facades;
+    }
+
+    public void setFacades(int facades) {
+        this.facades = facades;
+    }
+
+    public int getRtmId() {
+        return rtmId;
+    }
+
+    public void setRtmId(int rtmId) {
+        this.rtmId = rtmId;
+    }
+
+    public int getNotificationId() {
+        return notificationId;
+    }
+
+    public void setNotificationId(int notificationId) {
+        this.notificationId = notificationId;
+    }
+
+    public int getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
     }
 }
 

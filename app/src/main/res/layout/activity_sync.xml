@@ -70,17 +70,45 @@
 
         </LinearLayout>
     </FrameLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        >
+
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabSync"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="16dp"
+        android:src="@drawable/ic_sync"
+        android:tint="@color/colorWhite" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabSyncImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginVertical="16dp"
+            android:src="@drawable/ic_camera_alt"
+            android:tint="@color/colorWhite" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabSyncTracks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginHorizontal="16dp"
         android:layout_marginVertical="16dp"
-        android:src="@drawable/ic_sync"
+        android:src="@drawable/marker"
         android:tint="@color/colorWhite" />
-
+    </LinearLayout>
 
 </RelativeLayout>

@@ -14,6 +14,12 @@ import android.os.Bundle;
 
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.MediaStore;
 import android.text.InputType;
@@ -22,32 +28,44 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.storexecution.cocacola.BuildConfig;
 import com.storexecution.cocacola.PdfViewer;
+import com.storexecution.cocacola.PhotoFragmentDialog;
 import com.storexecution.cocacola.R;
+import com.storexecution.cocacola.adapter.PhotoAdapter;
+import com.storexecution.cocacola.model.Notification;
 import com.storexecution.cocacola.model.Photo;
 import com.storexecution.cocacola.model.Salepoint;
 import com.storexecution.cocacola.model.TagElement;
+import com.storexecution.cocacola.model.ValidationConditon;
 import com.storexecution.cocacola.util.Base64Util;
 import com.storexecution.cocacola.util.Constants;
+import com.storexecution.cocacola.util.DateUtils;
 import com.storexecution.cocacola.util.ImageLoad;
 import com.storexecution.cocacola.util.PrimaryKeyFactory;
+import com.storexecution.cocacola.util.RecyclerItemClickListener;
 import com.storexecution.cocacola.util.Session;
 import com.storexecution.cocacola.util.UtilBase64;
+import com.storexecution.cocacola.viewmodel.PhotoViewModel;
 
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,7 +81,7 @@ import io.realm.RealmList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class InternalPlvFragment extends Fragment {
+public class InternalPlvFragment extends Fragment implements Observer<String> {
 
 
     /**
@@ -93,6 +111,10 @@ public class InternalPlvFragment extends Fragment {
     RadioButton rbComboNo;
     @BindView(R.id.ivPhoto)
     ImageView ivPhoto;
+    @BindView(R.id.tvInternalPlv)
+    TextView tvInternalPlv;
+    @BindView(R.id.rvPhoto)
+    RecyclerView rvPhoto;
 
     /** ButterKnife Code **/
     /**
@@ -106,7 +128,12 @@ public class InternalPlvFragment extends Fragment {
     RealmList<TagElement> forexRacks;
     RealmList<TagElement> wrapedLinears;
     RealmList<TagElement> wrapedSkids;
+    ArrayList<String> brands;
     Photo photo;
+    PhotoAdapter photoAdapter;
+    RealmList<Photo> photos;
+
+    private PhotoViewModel photoViewModel;
 
     public InternalPlvFragment() {
         // Required empty public constructor
@@ -126,21 +153,46 @@ public class InternalPlvFragment extends Fragment {
         forexRacks = salepoint.getForexRacks();
         wrapedLinears = salepoint.getWrapedLinear();
         wrapedSkids = salepoint.getWrapedSkids();
+        brands = new ArrayList<>();
+        brands.add("Marque");
+        brands.add("Coca-Cola");
+        brands.add("Pepsi");
+        brands.add("Hamoud boualem");
+        brands.add("Autre Boisson gazeuse");
+        Log.e("REALM", Realm.getGlobalInstanceCount(Realm.getDefaultConfiguration()) + " ");
 
         if (salepoint.getCocacolaCombo() == 1)
             rbComboYes.setChecked(true);
         else if (salepoint.getCocacolaCombo() == 0)
             rbComboNo.setChecked(true);
 
+        photos = new RealmList<>();
 
-        photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_PLV_Internal).findFirst();
-        if (photo != null)
-            ivPhoto.setImageBitmap(Base64Util.Base64ToBitmap(photo.getImage()));
+
+        long count = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_PLV_Internal).count();
+        if (count > 0) {
+            //   ivPhoto.setImageBitmap(Base64Util.Base64ToBitmap(photo.getImage()));
+            photos.addAll(realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_PLV_Internal).findAll());
+            //photos.add(photo);
+        }
+        photoAdapter = new PhotoAdapter(getActivity(), photos, salepoint.getNotificationId(), new RecyclerItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                takePhoto(Constants.IMG_PLV_Internal, salepoint.getMobile_id(), photos.get(position).getImageID());
+
+            }
+        });
+        rvPhoto.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        rvPhoto.setAdapter(photoAdapter);
         setForexRackTags();
         setMetalRackTags();
         setWrapedLinearTags();
         setWrapedSkidTags();
+        checkNotification();
 
+        photoViewModel = new ViewModelProvider(requireActivity()).get(PhotoViewModel.class);
+
+        photoViewModel.getPhoto().observe(requireActivity(), this);
 
         tgMetalRack.setOnTagClickListener(new TagView.OnTagClickListener() {
             @Override
@@ -236,7 +288,8 @@ public class InternalPlvFragment extends Fragment {
 
     @OnClick(R.id.ivPhoto)
     public void photo() {
-        takePhoto(Constants.IMG_PLV_Internal, salepoint.getMobile_id());
+        takePhoto(Constants.IMG_PLV_Internal, salepoint.getMobile_id(), null);
+
 
         //add(tgMetalRack, metalRacks);
     }
@@ -304,14 +357,19 @@ public class InternalPlvFragment extends Fragment {
 
         TagElement tagElement = new TagElement();
         tagElement.setId("PLVI_" + UUID.randomUUID());
+        final Spinner spinner = new Spinner(getActivity());
 
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getContext(), android.R.layout.simple_list_item_1, brands);
+        spinner.setAdapter(adapter);
 
         final EditText name = new EditText(getActivity());
         final EditText quantity = new EditText(getActivity());
         ivDialogPhoto = new ImageView(getActivity());
 
-        ivDialogPhoto.setMaxHeight(80);
-        ivDialogPhoto.setMaxWidth(80);
+        ivDialogPhoto.setMaxHeight(300);
+        ivDialogPhoto.setMaxWidth(300);
+        ivDialogPhoto.setAdjustViewBounds(true);
         ivDialogPhoto.setImageResource(R.drawable.photo_red);
         name.setGravity(Gravity.CENTER);
         name.setHint("Marque");
@@ -327,13 +385,13 @@ public class InternalPlvFragment extends Fragment {
             @Override
             public void onClick(SweetAlertDialog sweetAlertDialog) {
 
-                String nameText = name.getText().toString();
+                String nameText = spinner.getSelectedItem().toString();
                 String quantityText = quantity.getText().toString().trim();
                 photo = realm.where(Photo.class).equalTo("TypeID", tagElement.getId()).and().equalTo("Type", type).findFirst();
 
 
-                if (nameText.length() > 0 && quantityText.length() > 0 && Integer.valueOf(quantityText) > 0 && photo != null) {
-                    tagContainerLayout.addTag(name.getText().toString() + " : " + Integer.valueOf(quantityText));
+                if (spinner.getSelectedItemPosition() > 0 && quantityText.length() > 0 && Integer.valueOf(quantityText) > 0 && photo != null) {
+                    tagContainerLayout.addTag(spinner.getSelectedItem().toString() + " : " + Integer.valueOf(quantityText));
                     tagElement.setName(nameText);
                     tagElement.setQuantity(Integer.valueOf(quantityText));
                     tagElements.add(tagElement);
@@ -363,13 +421,13 @@ public class InternalPlvFragment extends Fragment {
         index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
         linearLayout.addView(quantity, index + 1);
         index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
-        linearLayout.addView(name, index + 1);
+        linearLayout.addView(spinner, index + 1);
 
         ivDialogPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                takePhoto(type, tagElement.getId());
+                takePhoto(type, tagElement.getId(), null);
             }
         });
 
@@ -380,6 +438,19 @@ public class InternalPlvFragment extends Fragment {
         TagElement tagElement = tagElements.get(position);
         final EditText name = new EditText(getActivity());
         final EditText quantity = new EditText(getActivity());
+
+        final Spinner spinner = new Spinner(getActivity());
+
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getContext(), android.R.layout.simple_list_item_1, brands);
+        spinner.setAdapter(adapter);
+
+        int elementindex = brands.indexOf(tagElement.getName());
+        if (elementindex != -1)
+            spinner.setSelection(elementindex);
+        else
+            spinner.setSelection(4);
+      //  Log.e("onChangeededit", tagElement.getId());
         name.setGravity(Gravity.CENTER);
         name.setHint("Marque");
         name.setText(tagElement.getName());
@@ -389,9 +460,10 @@ public class InternalPlvFragment extends Fragment {
         quantity.setInputType(InputType.TYPE_CLASS_NUMBER);
         ivDialogPhoto = new ImageView(getActivity());
 
-        ivDialogPhoto.setMaxHeight(100);
-        ivDialogPhoto.setMaxWidth(100);
-        photo = realm.where(Photo.class).equalTo("TypeID", tagElement.getId()).and().equalTo("Type", type).findFirst();
+        ivDialogPhoto.setMaxHeight(300);
+        ivDialogPhoto.setMaxWidth(300);
+        ivDialogPhoto.setAdjustViewBounds(true);
+        photo = realm.where(Photo.class).equalTo("TypeID", tagElement.getId()).findFirst();
         if (photo != null)
             ivDialogPhoto.setImageBitmap(Base64Util.Base64ToBitmap(photo.getImage(), 4));
         else
@@ -408,19 +480,20 @@ public class InternalPlvFragment extends Fragment {
         sweetAlertDialog.setConfirmButton("Oui", new SweetAlertDialog.OnSweetClickListener() {
             @Override
             public void onClick(SweetAlertDialog sweetAlertDialog) {
-                sweetAlertDialog.dismiss();
 
-                String nameText = name.getText().toString();
+
+                String nameText = spinner.getSelectedItem().toString();
                 String quantityText = quantity.getText().toString().trim();
-                if (nameText.length() > 0 && quantityText.length() > 0 && Integer.parseInt(quantityText) > 0) {
+                if (spinner.getSelectedItemPosition() > 0 && quantityText.length() > 0 && Integer.parseInt(quantityText) > 0) {
                     tagContainerLayout.removeTag(position);
-                    tagContainerLayout.addTag(name.getText().toString() + " : " + Integer.parseInt(quantityText));
+                    tagContainerLayout.addTag(nameText + " : " + Integer.parseInt(quantityText));
 
                     tagElements.remove(position);
-                    tagElements.add(new TagElement(nameText, Integer.parseInt(quantityText)));
+                   // tagElements.add(new TagElement(nameText, Integer.parseInt(quantityText)));
+                    tagElements.add(new TagElement(tagElement.getId(), nameText, Integer.parseInt(quantityText)));
 
                     // Log.e("taglistLength",tags.size()+" ");
-
+                    sweetAlertDialog.dismiss();
 
                 } else {
                     Toasty.error(getActivity(), "Veillez remplir tous les champs", 5000).show();
@@ -448,7 +521,7 @@ public class InternalPlvFragment extends Fragment {
         linearLayout.addView(quantity, index + 1);
 
         index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
-        linearLayout.addView(name, index + 1);
+        linearLayout.addView(spinner, index + 1);
 
 
     }
@@ -486,7 +559,16 @@ public class InternalPlvFragment extends Fragment {
     private Uri fileUri;
     int MEDIA_TYPE_IMAGE = 1;
 
-    public void takePhoto(String type, String id) {
+    public void takePhoto(String type, String id, @Nullable String imageid) {
+        Log.e("onChangeed5", type + " ");
+        Log.e("onChangeed4", id + " ");
+        PhotoFragmentDialog photoFragmentDialog = new PhotoFragmentDialog();
+        photoFragmentDialog.setMobile_id(salepoint.getMobile_id());
+        photoFragmentDialog.setPrefix("plv");
+        photoFragmentDialog.setType(type);
+        photoFragmentDialog.setImage_id(imageid);
+        photoFragmentDialog.setType_id(id);
+        showFragment(photoFragmentDialog, getFragmentManager(), true, "photoframgent");
 
 
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -501,16 +583,16 @@ public class InternalPlvFragment extends Fragment {
                 FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID +".provider",
                         new File(fileUri.getPath())));*/
         // start the image capture Intent
-        this.startActivityForResult(intent, 1234);
+        //  this.startActivityForResult(intent, 1234);
     }
 
     public Uri getOutputMediaFileUri(int type) {
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type));
+            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type, salepoint.getMobile_id(), Constants.IMG_PLV_Internal));
         } else
 
-            return FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileprovider", ImageLoad.getOutputMediaFile(getContext(), type));
+            return FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileprovider", ImageLoad.getOutputMediaFile(getContext(), type, salepoint.getMobile_id(), Constants.IMG_PLV_Internal));
 
     }
 
@@ -587,12 +669,12 @@ public class InternalPlvFragment extends Fragment {
             Canvas canvas = new Canvas(mutableBitmap);
             Paint paint = new Paint();
             paint.setColor(Color.YELLOW);
-            paint.setTextSize(24);
+            paint.setTextSize(60);
             paint.setTextAlign(Paint.Align.LEFT);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-            String currentDateandTime = sdf.format(new Date());
 
-            canvas.drawText("Date: " + currentDateandTime, 20, 35, paint);
+
+            canvas.drawText("Date: " + DateUtils.todayDateTime(), 35, 65, paint);
 
        /*     ivPlv.setImageResource(android.R.color.transparent);
             PicassoSingleton.with(getActivity())
@@ -613,19 +695,21 @@ public class InternalPlvFragment extends Fragment {
             String imageBase64 = UtilBase64.bitmapToBase64String(mutableBitmap);
 
             // fridge.setPhotoFridge(imageBase64);
+            photo = realm.where(Photo.class).equalTo("TypeID", id).and().equalTo("Type", type).findFirst();
+
             realm.beginTransaction();
-            if (photo == null)
+            if (photo == null) {
                 photo = realm.createObject(Photo.class, PrimaryKeyFactory.nextKey(Photo.class));
 
-            photo.setImageID("plv_" + UUID.randomUUID());
-            photo.setDate(System.currentTimeMillis() / 1000 + "");
-            if (type.equals(Constants.IMG_PLV_Internal)) {
-                photo.setTypeID(salepoint.getMobile_id());
-            } else {
+                photo.setImageID("plv_" + UUID.randomUUID());
+
                 photo.setTypeID(id);
+                photo.setType(type);
             }
+            photo.setDate(DateUtils.todayDateTime() + "");
             photo.setImage(imageBase64);
-            photo.setType(type);
+            photo.setSynced(false);
+
 
             realm.commitTransaction();
 
@@ -642,5 +726,59 @@ public class InternalPlvFragment extends Fragment {
         getActivity().startActivity(intent);
     }
 
+    private void checkNotification() {
+        Notification notification;
+        if (salepoint.getNotificationId() != 0)
+            notification = realm.where(Notification.class).equalTo("id", salepoint.getNotificationId()).findFirst();
+        else
+            notification = null;
+        if (notification != null) {
+            for (ValidationConditon validationConditon : notification.getConditions()) {
 
+                if (validationConditon.getStatus() == 0 && validationConditon.getDataType().equals(Constants.IMG_PLV_Internal)) {
+                    tvInternalPlv.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                    Log.e("notification", validationConditon.getDataType() + " ");
+                }
+
+            }
+
+
+        }
+
+    }
+
+
+    @Override
+    public void onChanged(String s) {
+
+        Photo photo = realm.where(Photo.class).equalTo("ImageID", s).findFirst();
+        Log.e("onChangeed", s);
+        Log.e("onChangeed1", photo.getTypeID());
+        Log.e("onChangeed2", photo.getType());
+        Log.e("onChangeedocunt", realm.where(Photo.class).equalTo("ImageID", s).count() + " ");
+        Bitmap bitmap = Base64Util.Base64ToBitmap(photo.getImage());
+        if (photo.getType().equals(Constants.IMG_PLV_Internal)) {
+            //  ivPhoto.setImageBitmap(bitmap);
+            photos.clear();
+            photos.addAll(realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_PLV_Internal).findAll());
+
+            photoAdapter.notifyDataSetChanged();
+
+        } else {
+            if (sweetAlertDialog.isShowing()) {
+                ivDialogPhoto.setImageBitmap(bitmap);
+
+            }
+        }
+    }
+
+    public static void showFragment(Fragment fragment, FragmentManager fragmentManager, boolean withAnimation, String tag) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (withAnimation) {
+            transaction.setCustomAnimations(R.anim.slide_up_anim, R.anim.slide_down_anim);
+        } else {
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        }
+        transaction.add(android.R.id.content, fragment, tag).commitAllowingStateLoss();
+    }
 }

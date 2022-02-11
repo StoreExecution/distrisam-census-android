@@ -1,9 +1,14 @@
 package com.storexecution.cocacola.ui.newpos.rgb;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,18 +21,29 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.storexecution.cocacola.PhotoFragmentDialog;
 import com.storexecution.cocacola.R;
+import com.storexecution.cocacola.model.Notification;
+import com.storexecution.cocacola.model.Photo;
 import com.storexecution.cocacola.model.Salepoint;
+import com.storexecution.cocacola.model.User;
+import com.storexecution.cocacola.model.ValidationConditon;
+import com.storexecution.cocacola.util.Base64Util;
+import com.storexecution.cocacola.util.Constants;
 import com.storexecution.cocacola.util.Session;
+import com.storexecution.cocacola.viewmodel.PhotoViewModel;
+
+import javax.annotation.Nullable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class RgbInformationFragment extends Fragment {
+public class RgbInformationFragment extends Fragment implements Observer<String> {
 
     /**
      * ButterKnife Code
@@ -68,6 +84,10 @@ public class RgbInformationFragment extends Fragment {
     Button btPlusRgbrFull;
     @BindView(R.id.etBarCode)
     TextView etBarCode;
+    @BindView(R.id.tvRgb)
+    TextView tvRgb;
+    @BindView(R.id.tvRgbKo)
+    TextView tvRgbKo;
     @BindView(R.id.barCode)
     ImageView barCode;
     @BindView(R.id.llNavigation)
@@ -76,11 +96,18 @@ public class RgbInformationFragment extends Fragment {
     ImageView fabPrev;
     @BindView(R.id.fabNext)
     ImageView fabNext;
+    @BindView(R.id.ivPhotoKoRgb)
+    ImageView ivPhotoKoRgb;
+    @BindView(R.id.ivPhotosRgb)
+    ImageView ivPhotosRgb;
     /**
      * ButterKnife Code
      **/
     Session session;
     Salepoint salepoint;
+    private PhotoViewModel photoViewModel;
+    Realm realm;
+    User user;
 
     public RgbInformationFragment() {
         // Required empty public constructor
@@ -95,6 +122,22 @@ public class RgbInformationFragment extends Fragment {
         ButterKnife.bind(this, v);
         session = new Session(getActivity().getApplicationContext());
         salepoint = session.getSalepoint();
+        realm = Realm.getDefaultInstance();
+        user = realm.where(User.class).findFirst();
+        Photo photoRgb = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).equalTo("Type", Constants.IMG_RGB).findFirst();
+
+        if (photoRgb != null)
+            ivPhotosRgb.setImageBitmap(Base64Util.Base64ToBitmap(photoRgb.getImage()));
+
+
+        Photo photoRgbko = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).equalTo("Type", Constants.IMG_RGB_KO).findFirst();
+
+        if (photoRgbko != null)
+            ivPhotoKoRgb.setImageBitmap(Base64Util.Base64ToBitmap(photoRgbko.getImage()));
+        checkNotification();
+        photoViewModel = new ViewModelProvider(requireActivity()).get(PhotoViewModel.class);
+
+        photoViewModel.getPhoto().observe(requireActivity(), this);
         if (salepoint.getHasRgb() == 0) {
             rbRgbNo.setChecked(true);
             rgRgbKo.clearCheck();
@@ -311,4 +354,84 @@ public class RgbInformationFragment extends Fragment {
         session.setSalepoint(salepoint);
 
     }
+
+    @Override
+    public void onChanged(String s) {
+
+        Photo photo = realm.where(Photo.class).equalTo("ImageID", s).findFirst();
+
+        Bitmap bitmap = Base64Util.Base64ToBitmap(photo.getImage());
+        if (photo.getType().equals(Constants.IMG_RGB)) {
+            ivPhotosRgb.setImageBitmap(Base64Util.Base64ToBitmap(photo.getImage()));
+
+        } else {
+
+            ivPhotoKoRgb.setImageBitmap(Base64Util.Base64ToBitmap(photo.getImage()));
+        }
+    }
+
+    @OnClick(R.id.ivPhotosRgb)
+    public void photoRgb() {
+
+        if (rbRgbYes.isChecked()) {
+            String photoId = null;
+            Photo photoRgb = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).equalTo("Type", Constants.IMG_RGB).findFirst();
+
+            if (photoRgb != null)
+                photoId = photoRgb.getImageID();
+            takePhoto(Constants.IMG_RGB, salepoint.getMobile_id(), photoId);
+        }
+    }
+
+    @OnClick(R.id.ivPhotoKoRgb)
+    public void photoRgbKo() {
+        if (rbRgbKoYes.isChecked()) {
+            String photoId = null;
+            Photo photoRgb = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).equalTo("Type", Constants.IMG_RGB_KO).findFirst();
+            if (photoRgb != null)
+                photoId = photoRgb.getImageID();
+            takePhoto(Constants.IMG_RGB_KO, salepoint.getMobile_id(), photoId);
+        }
+    }
+
+    private void takePhoto(String type, String id, @Nullable String imageid) {
+        PhotoFragmentDialog fragmentDialog = new PhotoFragmentDialog();
+        fragmentDialog.setType(type);
+        fragmentDialog.setImage_id(imageid);
+        fragmentDialog.setPrefix("rgb");
+        fragmentDialog.setType_id(id);
+        getFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(R.anim.slide_up_anim, R.anim.slide_down_anim)
+                .add(android.R.id.content, fragmentDialog, "photoFragment")
+                .commitAllowingStateLoss();
+    }
+
+
+    private void checkNotification() {
+        Notification notification;
+        if (salepoint.getNotificationId() != 0)
+            notification = realm.where(Notification.class).equalTo("id", salepoint.getNotificationId()).findFirst();
+        else
+            notification = null;
+        if (notification != null) {
+            for (ValidationConditon validationConditon : notification.getConditions()) {
+
+                if (validationConditon.getDataType().equals(Constants.IMG_RGB)) {
+                    tvRgb.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                    Log.e("notification", validationConditon.getDataType() + " ");
+                }
+
+                if (validationConditon.getDataType().equals(Constants.IMG_RGB_KO)) {
+                    tvRgbKo.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                    Log.e("notification", validationConditon.getDataType() + " ");
+                }
+
+            }
+
+
+        }
+
+    }
+
 }

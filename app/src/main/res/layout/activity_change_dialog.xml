@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="#fff"
+    android:gravity="center"
+    android:orientation="vertical">
+
+
+
+    <ImageView
+        android:id="@+id/ivPhoto"
+        android:layout_width="200dp"
+        android:layout_height="330dp"
+
+        android:src="@drawable/photo_red" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="Type"
+        android:textColor="@color/colorAccent"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spType"
+        android:layout_width="250dp"
+        android:layout_height="45dp"
+        android:layout_marginBottom="25dp"
+
+        android:background="@drawable/outline"
+        android:enabled="false"
+        android:entries="@array/typeactivitychange"
+        android:gravity="center"
+        android:hint="Commune"
+        android:inputType="numberDecimal"
+        android:textSize="17sp"
+
+        />
+
+
+    <EditText
+        android:id="@+id/etComment"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edittext_background"
+        android:gravity="center"
+        android:hint="Commentaire"
+        android:lines="5"
+
+        android:textColor="@color/black"
+
+
+        />
+
+    <com.kusu.loadingbutton.LoadingButton
+        android:id="@+id/btgps"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+
+        android:layout_marginTop="20dp"
+        android:background="@color/colorPrimary"
+        android:text="GPS"
+        android:textColor="@color/white"
+        app:lb_buttonColor="@color/colorPrimary"
+        app:lb_cornerRadius="20dp"
+        app:lb_isCircular="true"
+        app:lb_isShadowEnable="true"
+        app:lb_loaderColor="@color/colorAccent"
+        app:lb_shadowColor="@color/colorPrimaryDark"
+        app:lb_shadowHeight="5dp" />
+
+    <Button
+        android:id="@+id/btValidate"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="55dp"
+        android:background="@drawable/login_button_green"
+        android:gravity="center"
+
+        android:paddingHorizontal="10dp"
+        android:text="Valider"
+        android:textColor="@color/colorWhite"
+
+        />
+
+</LinearLayout>
+</ScrollView>

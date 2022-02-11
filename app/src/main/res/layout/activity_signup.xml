@@ -1,0 +1,158 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+
+    >
+
+
+    <RelativeLayout
+        android:id="@+id/rlTinda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            android:src="@drawable/tinda_coca" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/tinda_logo_coca" />
+
+    </RelativeLayout>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:layout_below="@id/rlTinda"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/float_transparent"
+
+
+        >
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+
+            >
+
+
+
+
+            <EditText
+                android:id="@+id/etName"
+                android:layout_width="280dp"
+                android:layout_height="50dp"
+                android:layout_marginVertical="10dp"
+                android:background="@drawable/login_edittext"
+                android:hint="Nom et prénom"
+                android:paddingLeft="35dp"
+
+                />
+
+            <EditText
+                android:id="@+id/etUserName"
+                android:layout_width="280dp"
+                android:layout_height="50dp"
+                android:layout_marginVertical="10dp"
+                android:background="@drawable/login_edittext"
+                android:hint="Nom d'utilisateur"
+                android:paddingLeft="35dp"
+
+                />
+
+            <EditText
+                android:id="@+id/etMail"
+                android:layout_width="280dp"
+                android:layout_height="50dp"
+                android:layout_marginVertical="10dp"
+                android:background="@drawable/login_edittext"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:paddingLeft="35dp" />
+
+            <EditText
+                android:id="@+id/etPhone"
+                android:layout_width="280dp"
+                android:layout_height="50dp"
+                android:layout_marginVertical="10dp"
+                android:background="@drawable/login_edittext"
+                android:hint="Numero de telephone "
+                android:inputType="phone"
+                android:paddingLeft="35dp" />
+
+
+            <EditText
+                android:id="@+id/etPasssword"
+                android:layout_width="280dp"
+                android:layout_height="50dp"
+                android:layout_marginVertical="10dp"
+                android:background="@drawable/login_edittext"
+                android:hint="Mot de passe"
+                android:inputType="textPassword"
+                android:paddingLeft="35dp" />
+
+            <Spinner
+                android:id="@+id/spWilaya"
+                android:layout_width="280dp"
+                android:layout_height="50dp"
+                android:layout_marginVertical="10dp"
+                android:background="@drawable/outline"
+
+                android:inputType="textPassword"
+                android:paddingLeft="35dp" />
+
+
+            <Button
+                android:id="@+id/btSignUp"
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginVertical="30dp"
+                android:background="@drawable/login_button"
+                android:gravity="center"
+                android:text="Cree un compte"
+                android:textColor="@color/colorWhite" />
+
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+
+    <TextView
+        android:id="@+id/tvVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+
+        android:layout_gravity="center"
+
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text=""
+        android:textColor="@color/colorAccent"
+
+        android:textStyle="bold" />
+
+
+</RelativeLayout>

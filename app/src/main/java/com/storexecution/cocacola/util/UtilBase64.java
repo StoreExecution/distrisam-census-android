@@ -14,7 +14,7 @@ public class UtilBase64 {
 
     public static String bitmapToBase64String(Bitmap photo) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        photo.compress(Bitmap.CompressFormat.JPEG, 40, baos);
+        photo.compress(Bitmap.CompressFormat.JPEG, 50, baos);
 
 
         byte[] b = baos.toByteArray();

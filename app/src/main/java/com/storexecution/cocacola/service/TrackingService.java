@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import androidx.core.app.NotificationCompat;
 
 
 import com.google.gson.Gson;
+import com.storexecution.cocacola.HomeActivity;
 import com.storexecution.cocacola.R;
 
 import com.storexecution.cocacola.model.Photo;
@@ -62,10 +64,12 @@ public class TrackingService extends Service implements LocationListener {
     Handler mHandler = new Handler();
     final int MAX_RETRIES = 30;
     int RETRIES = 0;
-    final int NOTIFICATION_ID = 3215;
+    final int NOTIFICATION_ID = 3;
     final int RANDOM = 2348;
     Vibrator v;
 
+    public static final String CHANNEL_ID = "com.storexecution.cocacola.service";
+    public static final CharSequence CHANNEL_NAME = "Coca-cola";
     Uri notification;
     Ringtone r;
     private NotificationManager notificationManager;
@@ -94,8 +98,26 @@ public class TrackingService extends Service implements LocationListener {
 
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            startMyOwnForeground();
+        else
+            startForeground(NOTIFICATION_ID, getNotification());
+
+        if (LocationUtil.isGpsActive(this))
+            gpsLocal();
+        else {
+            Log.e("Tracking Service", "GPS not Active");
+            stopService();
+        }
+        return START_STICKY;
+    }
+
+    @Override
     public void onCreate() {
         super.onCreate();
+        Log.e("InTracking", "Intrakcing");
 
         powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         sharedPrefUtil = SharedPrefUtil.getInstance(this);
@@ -115,12 +137,11 @@ public class TrackingService extends Service implements LocationListener {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 //        r = RingtoneManager.getRingtone(getApplicationContext(), notification);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            startMyOwnForeground();
-        else
-            startForeground(NOTIFICATION_ID, getNotification());
-        notificationManager.notify(NOTIFICATION_ID, getNotification());
-        wakeLock.acquire();
+
+        //notificationManager.notify(NOTIFICATION_ID, getNotification());
+
+
+
 
         realm = Realm.getDefaultInstance();
         // user = realm.where(User.class).findFirst();
@@ -136,6 +157,9 @@ public class TrackingService extends Service implements LocationListener {
         criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
         criteria.setVerticalAccuracy(Criteria.ACCURACY_HIGH);
         criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+
+
+
 //        criteria.setAltitudeRequired(true);
 //        criteria.setBearingRequired(true);
 //        criteria.setCostAllowed(true);
@@ -159,18 +183,20 @@ public class TrackingService extends Service implements LocationListener {
 
         //if (sharedPrefUtil.getBoolean("working", false)) {
 
-        if (LocationUtil.isGpsActive(this))
-            gpsLocal();
-        else {
-            Log.e("Tracking Service", "GPS not Active");
-            stopService();
-        }
+
 
 //        } else {
 //            Log.e("tracking", "cancel");
 //            new AlarmTask(TrackingService.this).cancelAlarm();
 //        }
 
+
+        if (LocationUtil.isGpsActive(this))
+            gpsLocal();
+        else {
+            Log.e("Tracking Service", "GPS not Active");
+            stopService();
+        }
     }
 
     @Nullable
@@ -182,7 +208,10 @@ public class TrackingService extends Service implements LocationListener {
 
     @SuppressLint("MissingPermission")
     private void gpsLocal() {
+        Log.e("Tracking service", "gpsLocal");
 
+
+        wakeLock.acquire();
 
         if (locationManager == null)
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -193,6 +222,53 @@ public class TrackingService extends Service implements LocationListener {
             stopService();
 
     }
+
+
+    private void startForegroundService(){
+
+        Log.e("START","START");
+
+       // Log.i(TAG, "Start foreground service");
+
+
+
+
+        // Create Notification channel
+        createNotificationChannel();
+
+        // Create intent that will bring our app to the front, as if it was tapped in the app
+        // launcher
+        Intent showTaskIntent = new Intent(getApplicationContext(), HomeActivity.class);
+        showTaskIntent.setAction(Intent.ACTION_MAIN);
+        showTaskIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        showTaskIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                getApplicationContext(),
+                0,
+                showTaskIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification.Builder  builder = new Notification.Builder(getApplicationContext())
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText("Mise a jour des données")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setOnlyAlertOnce(true)
+                .setWhen(System.currentTimeMillis());
+        //.setContentIntent(contentIntent);
+        // Set the Channel ID for Android O.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder.setChannelId(CHANNEL_ID); // Channel ID
+        }
+        startForeground(1, builder.build());
+
+       // ServiceUtils.setRequestingLocationUpdates(getApplicationContext(), true);
+
+    }
+
+
+
+
 
     @Override
     public void onLocationChanged(Location location) {
@@ -249,8 +325,8 @@ public class TrackingService extends Service implements LocationListener {
             e.printStackTrace();
         }
 
-        if (!syncing)
-            sync();
+//        if (!syncing)
+//            sync();
 
 
     }
@@ -289,6 +365,7 @@ public class TrackingService extends Service implements LocationListener {
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .build();
+        Log.e("Tracking service", "startMyOwnForeground");
         startForeground(3, notification);
     }
 
@@ -307,6 +384,23 @@ public class TrackingService extends Service implements LocationListener {
                 .setContentText("").build();
 
 
+    }
+
+    private void createNotificationChannel(){
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if(notificationManager != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance);
+                notificationChannel.enableLights(true);
+                notificationChannel.setLightColor(Color.BLUE);
+                notificationChannel.setSound(null, null);
+                notificationChannel.setShowBadge(false);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
     }
 
 
@@ -337,10 +431,10 @@ public class TrackingService extends Service implements LocationListener {
         photos.clear();
 
         synced = 0;
-        salepoints.addAll(realm.where(Salepoint.class).equalTo("synced", false).findAll());
+        salepoints.addAll(realm.where(Salepoint.class).equalTo("synced", false).and().equalTo("user_id", user.getId()).findAll());
 
         suivis.addAll(realm.where(Suivi.class).equalTo("synced", false).limit(50).findAll());
-        photos.addAll(realm.where(Photo.class).equalTo("synced", false).findAll());
+        photos.addAll(realm.where(Photo.class).equalTo("synced", false).and().equalTo("user_id", user.getId()).findAll());
         size = salepoints.size() + suivis.size() + photos.size();
         //syncTrackings(suivis, 0);
         syncPhotos(photos, 0);

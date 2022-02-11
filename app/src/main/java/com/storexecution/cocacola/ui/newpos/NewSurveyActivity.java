@@ -29,12 +29,25 @@ public class NewSurveyActivity extends AppCompatActivity {
         salepoint = session.getSalepoint();
         realm = Realm.getDefaultInstance();
         // ButterKnife.bind(this);
+        int rtm_id = 0;
+        int notification_id = 0;
+        if (getIntent().getExtras() != null) {
 
+            rtm_id = getIntent().getExtras().getInt("rtmId", 0);
+            notification_id = getIntent().getExtras().getInt("notificationId", 0);
 
+        }
+
+        SalepointTypeFragment salepointTypeFragment = new SalepointTypeFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("rtmId", rtm_id);
+        bundle.putInt("notification_id", notification_id);
+
+        salepointTypeFragment.setArguments(bundle);
         if (savedInstanceState == null)
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.content, new SalepointTypeFragment())
+                    .replace(R.id.content, salepointTypeFragment)
                     .commit();
 
     }

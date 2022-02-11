@@ -10,6 +10,8 @@ public class Photo extends RealmObject {
     @PrimaryKey
     int id;
     protected String UID;
+
+    int user_id;
     @SerializedName("image_mobile_created_date")
     protected String Date;
     @SerializedName("form_name")
@@ -21,6 +23,7 @@ public class Photo extends RealmObject {
     @SerializedName("image_mobile_id")
     String ImageID;
     boolean synced;
+    boolean error;
 
 
     public Photo() {
@@ -89,5 +92,21 @@ public class Photo extends RealmObject {
 
     public void setSynced(boolean synced) {
         this.synced = synced;
+    }
+
+    public int getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
     }
 }

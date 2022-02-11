@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.model.Salepoint;
@@ -51,6 +52,8 @@ public class StoreInformationFragment extends Fragment {
     RadioButton rbPosSystemNo;
     @BindView(R.id.llNavigation)
     LinearLayout llNavigation;
+    @BindView(R.id.spFacade)
+    Spinner spFacade;
     @BindView(R.id.fabPrev)
     ImageView fabPrev;
     @BindView(R.id.fabNext)
@@ -83,6 +86,7 @@ public class StoreInformationFragment extends Fragment {
         etOwnerPhone.setText(salepoint.getOwnerPhone());
         etManagerName.setText(salepoint.getManagerName());
         etManagerPhone.setText(salepoint.getManagerPhone());
+        spFacade.setSelection(salepoint.getFacades());
 
         if (salepoint.getPosSystem() == 1)
             rbPosSystemYes.setChecked(true);
@@ -121,6 +125,7 @@ public class StoreInformationFragment extends Fragment {
         salepoint.setOwnerPhone(etOwnerPhone.getText().toString());
         salepoint.setManagerName(etManagerName.getText().toString());
         salepoint.setManagerPhone(etManagerPhone.getText().toString());
+        salepoint.setFacades(spFacade.getSelectedItemPosition());
         if (rbPosSystemYes.isChecked())
             salepoint.setPosSystem(1);
         else if (rbPosSystemNo.isChecked())

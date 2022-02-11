@@ -113,6 +113,10 @@ public class SynchAdapter extends RecyclerView.Adapter<SynchAdapter.SalepointVie
 
             }
 
+            if(salepoint.isError())
+                flSynced.setBackground(context.getDrawable(R.drawable.yellow_circle));
+
+
         }
 
 

@@ -57,17 +57,18 @@
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:text="Vend les bouteilles en verre ? "
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="19sp"
-                    android:textStyle="bold"
 
-                    />
+                    <TextView
+                        android:id="@+id/tvRgb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:text="Vend les bouteilles en verre ? "
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="19sp"
+                        android:textStyle="bold"
 
+                        />
 
 
                     <RadioGroup
@@ -93,10 +94,17 @@
                             android:layout_marginHorizontal="10dp"
                             android:text="Non" />
                     </RadioGroup>
+
+                    <ImageView
+                        android:id="@+id/ivPhotosRgb"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:src="@drawable/photo_red" />
                 </LinearLayout>
 
 
                 <TextView
+                    android:id="@+id/tvRgbKo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
@@ -118,8 +126,8 @@
                         android:id="@+id/rgRgbKo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:clickable="false"
                         android:layout_marginVertical="15dp"
+                        android:clickable="false"
                         android:orientation="horizontal">
 
 
@@ -137,7 +145,15 @@
                             android:layout_marginHorizontal="10dp"
                             android:text="Non" />
                     </RadioGroup>
+
+
                 </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/ivPhotoKoRgb"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/photo_red" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -156,8 +172,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:visibility="gone"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <RadioGroup
                         android:id="@+id/rgStock"
@@ -201,10 +217,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:gravity="center"
-                    android:visibility="gone"
                     android:layout_marginVertical="15dp"
-                    android:orientation="horizontal">
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
@@ -251,20 +267,20 @@
                                         android:layout_height="match_parent"
                                         android:layout_weight="1"
                                         android:background="@color/colorAccent"
+                                        android:enabled="false"
                                         android:padding="0dp"
                                         android:text="+"
-                                        android:enabled="false"
                                         android:textColor="@color/colorWhite" />
 
                                     <EditText
                                         android:id="@+id/etRgbEmpty"
                                         android:layout_width="0dp"
                                         android:layout_height="50dp"
-android:enabled="false"
-
                                         android:layout_marginHorizontal="1dp"
+
                                         android:layout_weight="2"
                                         android:background="@drawable/edittext_background_2"
+                                        android:enabled="false"
                                         android:gravity="center"
 
                                         android:hint="Caisses vides"
@@ -277,9 +293,9 @@ android:enabled="false"
                                         android:layout_height="match_parent"
                                         android:layout_weight="1"
                                         android:background="@color/colorAccent"
+                                        android:enabled="false"
                                         android:padding="0dp"
                                         android:text="+"
-                                        android:enabled="false"
                                         android:textColor="@color/colorWhite" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -331,9 +347,9 @@ android:enabled="false"
                                         android:layout_height="match_parent"
                                         android:layout_weight="1"
                                         android:background="@color/colorAccent"
-                                        android:padding="0dp"
-                                    android:text="+"
                                         android:enabled="false"
+                                        android:padding="0dp"
+                                        android:text="+"
                                         android:textColor="@color/colorWhite" />
 
                                     <EditText
@@ -341,10 +357,10 @@ android:enabled="false"
                                         android:layout_width="0dp"
                                         android:layout_height="50dp"
 
-                                        android:enabled="false"
                                         android:layout_marginHorizontal="1dp"
                                         android:layout_weight="2"
                                         android:background="@drawable/edittext_background_2"
+                                        android:enabled="false"
                                         android:gravity="center"
 
                                         android:hint="Caisses pleines"
@@ -357,8 +373,8 @@ android:enabled="false"
                                         android:layout_height="match_parent"
                                         android:layout_weight="1"
                                         android:background="@color/colorAccent"
-                                        android:padding="0dp"
                                         android:enabled="false"
+                                        android:padding="0dp"
                                         android:text="+"
                                         android:textColor="@color/colorWhite" />
 

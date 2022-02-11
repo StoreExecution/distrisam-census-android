@@ -15,8 +15,11 @@ import android.widget.TextView;
 
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.model.Fridge;
+import com.storexecution.cocacola.model.Notification;
 import com.storexecution.cocacola.model.Photo;
 import com.storexecution.cocacola.model.Salepoint;
+import com.storexecution.cocacola.model.User;
+import com.storexecution.cocacola.model.ValidationConditon;
 import com.storexecution.cocacola.util.Constants;
 import com.storexecution.cocacola.util.LocationUtil;
 import com.storexecution.cocacola.util.SalepointTypeUtils;
@@ -36,23 +39,26 @@ public class SurveyHeadingMenu extends Fragment {
     /**
      * ButterKnife Code
      **/
-    /**
-     * ButterKnife Code
-     **/
     @BindView(R.id.rlTinda)
     RelativeLayout rlTinda;
-    @BindView(R.id.cvPosInfo)
-    androidx.cardview.widget.CardView cvPosInfo;
-    @BindView(R.id.flPosInfoIndicator)
-    FrameLayout flPosInfoIndicator;
     @BindView(R.id.tvalepointType)
     TextView tvalepointType;
+    @BindView(R.id.cvPosInfo)
+    androidx.cardview.widget.CardView cvPosInfo;
+    @BindView(R.id.tvInfoPos)
+    TextView tvInfoPos;
+    @BindView(R.id.flPosInfoIndicator)
+    FrameLayout flPosInfoIndicator;
     @BindView(R.id.cvTurnOver)
     androidx.cardview.widget.CardView cvTurnOver;
+    @BindView(R.id.tvPurchase)
+    TextView tvPurchase;
     @BindView(R.id.flTurnoverIndicator)
     FrameLayout flTurnoverIndicator;
     @BindView(R.id.cvFridge)
     androidx.cardview.widget.CardView cvFridge;
+    @BindView(R.id.tvFridge)
+    TextView tvFridge;
     @BindView(R.id.flFridgeIndicator)
     FrameLayout flFridgeIndicator;
     @BindView(R.id.cvAudit)
@@ -61,10 +67,14 @@ public class SurveyHeadingMenu extends Fragment {
     FrameLayout flAuditIndicator;
     @BindView(R.id.cvExternalPlv)
     androidx.cardview.widget.CardView cvExternalPlv;
+    @BindView(R.id.tvExternalPlv)
+    TextView tvExternalPlv;
     @BindView(R.id.flExtrnalPlvIndicator)
     FrameLayout flExtrnalPlvIndicator;
     @BindView(R.id.cvInternalPlv)
     androidx.cardview.widget.CardView cvInternalPlv;
+    @BindView(R.id.tvInternalPlv)
+    TextView tvInternalPlv;
     @BindView(R.id.flInternalPlvIndicator)
     FrameLayout flInternalPlvIndicator;
     @BindView(R.id.cvRgb)
@@ -73,20 +83,23 @@ public class SurveyHeadingMenu extends Fragment {
     FrameLayout flRgbIndicator;
     @BindView(R.id.cvLocation)
     androidx.cardview.widget.CardView cvLocation;
+    @BindView(R.id.tvLocation)
+    TextView tvLocation;
+    @BindView(R.id.tvRgb)
+    TextView tvRgb;
     @BindView(R.id.flLocationIndicator)
     FrameLayout flLocationIndicator;
     @BindView(R.id.fabNext)
     com.google.android.material.floatingactionbutton.FloatingActionButton fabNext;
     @BindView(R.id.fabBarcode)
     com.google.android.material.floatingactionbutton.FloatingActionButton fabBarcode;
-    /** ButterKnife Code **/
-
     /**
      * ButterKnife Code
      **/
     Session session;
     Salepoint salepoint;
     Realm realm;
+    User user;
 
     boolean infosEnabled = true;
     boolean turnoverEnabled = true;
@@ -96,6 +109,8 @@ public class SurveyHeadingMenu extends Fragment {
     boolean internallPlvEnabled = true;
     boolean rgbEnabled = true;
     boolean locationEnabled = true;
+
+    Notification notification;
 
     public SurveyHeadingMenu() {
         // Required empty public constructor
@@ -111,6 +126,13 @@ public class SurveyHeadingMenu extends Fragment {
         salepoint = session.getSalepoint();
         ButterKnife.bind(this, v);
         realm = Realm.getDefaultInstance();
+        user = realm.where(User.class).findFirst();
+        if (salepoint.getNotificationId() != 0) {
+            notification = realm.where(Notification.class).equalTo("id", salepoint.getNotificationId()).findFirst();
+        }
+
+        Log.e("REALM", Realm.getGlobalInstanceCount(Realm.getDefaultConfiguration()) + " ");
+
         //setCategories();
 //        Bundle b = getArguments();
 //        if (b != null) {
@@ -139,9 +161,14 @@ public class SurveyHeadingMenu extends Fragment {
     @OnClick(R.id.cvTurnOver)
     public void TurnOver() {
         if (LocationUtil.isGpsActive(getActivity())) {
-            if (turnoverEnabled)
-                startSurvey(Constants.TAG_TURNOVER);
-            else
+            if (turnoverEnabled) {
+
+                if (salepoint.getClassification() > 0)
+                    startSurvey(Constants.TAG_TURNOVER);
+                else
+                    Toasty.error(getActivity(), "Veuillez selectionner la classification du POS dans Info POS", 8000).show();
+
+            } else
                 Toasty.warning(getContext(), "Categorie non disponible pour ce point de vente", 7000, true).show();
         } else {
             Toasty.error(getActivity(), "Veuillez activer votre gps", 5000).show();
@@ -248,6 +275,43 @@ public class SurveyHeadingMenu extends Fragment {
         checkExternalPlv();
         checkInternalPlv();
         checkFridges();
+        checkNotification();
+    }
+
+
+    private void checkNotification() {
+        Log.e("checkNotification", "checkNotification");
+
+        if (notification != null) {
+            for (ValidationConditon validationConditon : notification.getConditions()) {
+                Log.e("checkNotification", validationConditon.getDataType() + " ");
+
+                if (validationConditon.getStatus() == 0 && (validationConditon.getDataType().equals(Constants.IMG_PLV_EXTERNAL) || validationConditon.getDataType().equals(Constants.IMG_PLV_EXTERNAL2))) {
+                    tvExternalPlv.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                }
+                if (validationConditon.getStatus() == 0 && (validationConditon.getDataType().equals(Constants.IMG_PLV_Internal))) {
+                    tvInternalPlv.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                }
+
+                if (validationConditon.getStatus() == 0 &&
+                        (validationConditon.getDataType().equals(Constants.IMG_CFRIDGE) || validationConditon.getDataType().equals(Constants.IMG_FRIDGE_BARCODE) || validationConditon.getDataType().equals(Constants.IMG_FRIDGE))) {
+                    tvFridge.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                }
+                if (validationConditon.getStatus() == 0 && (validationConditon.getDataType().equals(Constants.IMG_POS))) {
+                    tvLocation.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                }
+
+                if (validationConditon.getStatus() == 0 && (validationConditon.getDataType().equals(Constants.IMG_RGB))) {
+                    tvRgb.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                }
+                if (validationConditon.getStatus() == 0 && (validationConditon.getDataType().equals(Constants.IMG_RGB_KO))) {
+                    tvRgb.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                }
+
+            }
+
+
+        }
 
     }
 
@@ -310,15 +374,15 @@ public class SurveyHeadingMenu extends Fragment {
                 cvExternalPlv.setCardBackgroundColor(getResources().getColor(R.color.colorGrey));
                 flExtrnalPlvIndicator.setBackgroundColor(getResources().getColor(R.color.colorGrey));
 
-                cvInternalPlv.setCardBackgroundColor(getResources().getColor(R.color.colorGrey));
-                flInternalPlvIndicator.setBackgroundColor(getResources().getColor(R.color.colorGrey));
+//                cvInternalPlv.setCardBackgroundColor(getResources().getColor(R.color.colorGrey));
+//                flInternalPlvIndicator.setBackgroundColor(getResources().getColor(R.color.colorGrey));
 
 
                 cvAudit.setCardBackgroundColor(getResources().getColor(R.color.colorGrey));
                 flAuditIndicator.setBackgroundColor(getResources().getColor(R.color.colorGrey));
 
                 externalPlvEnabled = false;
-                internallPlvEnabled = false;
+                internallPlvEnabled = true;
                 surveyEnabled = false;
 
             } else {
@@ -327,9 +391,9 @@ public class SurveyHeadingMenu extends Fragment {
                 surveyEnabled = true;
             }
             if (salepoint.getSalepointType() == Constants.TYPE_RESTAURANT || salepoint.getSalepointType() == Constants.TYPE_FASTFOOD || salepoint.getSalepointType() == Constants.TYPE_CAFE) {
-                internallPlvEnabled = false;
-                cvInternalPlv.setCardBackgroundColor(getResources().getColor(R.color.colorGrey));
-                flInternalPlvIndicator.setBackgroundColor(getResources().getColor(R.color.colorGrey));
+//                internallPlvEnabled = true;
+//                cvInternalPlv.setCardBackgroundColor(getResources().getColor(R.color.colorGrey));
+//                flInternalPlvIndicator.setBackgroundColor(getResources().getColor(R.color.colorGrey));
 
             }
         } else if (salepoint.getClosed() == 1 || salepoint.getRefuse() == 1) {
@@ -413,6 +477,14 @@ public class SurveyHeadingMenu extends Fragment {
         } else {
             completd = false;
         }
+
+
+        if (salepoint.getFacades() > 0) {
+            started = true;
+        } else {
+            completd = false;
+        }
+
         if (salepoint.getSellSoda() == 1) {
             if (salepoint.getPurchaseSource() > 0) {
                 started = true;
@@ -570,19 +642,19 @@ public class SurveyHeadingMenu extends Fragment {
         }
 
 
-        if (salepoint.getPurchaseWaterLow().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
-
-        if (salepoint.getPurchaseWaterHigh().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
+//        if (salepoint.getPurchaseWaterLow().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
+//
+//        if (salepoint.getPurchaseWaterHigh().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
 
 
         if (salepoint.getPurchaseJuiceLow().length() > 0) {
@@ -598,44 +670,44 @@ public class SurveyHeadingMenu extends Fragment {
 
         }
 
-        if (salepoint.getPurchaseJuicePetLow().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
+//        if (salepoint.getPurchaseJuicePetLow().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
+//        if (salepoint.getPurchaseJuicePetHigh().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
 
-        }
-        if (salepoint.getPurchaseJuicePetHigh().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
-
-        if (salepoint.getPurchaseEnergyDrinkLow().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
-        if (salepoint.getPurchaseEnergyDrinkHigh().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
-
-        if (salepoint.getPurchaseOtherLow().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
-        if (salepoint.getPurchaseOtherHigh().length() > 0) {
-            started = true;
-        } else {
-            completd = false;
-
-        }
+//        if (salepoint.getPurchaseEnergyDrinkLow().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
+//        if (salepoint.getPurchaseEnergyDrinkHigh().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
+//
+//        if (salepoint.getPurchaseOtherLow().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
+//        if (salepoint.getPurchaseOtherHigh().length() > 0) {
+//            started = true;
+//        } else {
+//            completd = false;
+//
+//        }
 
         if (salepoint.getHasWarmStock() >= 0) {
             started = true;
@@ -794,8 +866,18 @@ public class SurveyHeadingMenu extends Fragment {
 
 
         if (salepoint.getHasRgb() > 0) {
+            Photo photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_RGB).findFirst();
+            if (photo != null)
+                started = true;
+            else
+                completd = false;
             started = true;
             if (salepoint.getHasKoRgb() > 0) {
+                Photo photo2 = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_RGB_KO).findFirst();
+                if (photo2 != null)
+                    started = true;
+                else
+                    completd = false;
 
 //                if (salepoint.getFullKoRgb().length() > 0) {
 //                    started = true;
@@ -929,11 +1011,12 @@ public class SurveyHeadingMenu extends Fragment {
 //        } else {
 //            completd = false;
 //        }
-        Photo photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_PLV_Internal).findFirst();
-        if (photo != null) {
+        long photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_PLV_Internal).count();
+        if (photo > 0) {
             started = true;
 
-        } else {
+        }
+        if (photo < 2) {
             completd = false;
         }
 
@@ -945,9 +1028,9 @@ public class SurveyHeadingMenu extends Fragment {
         else
             flInternalPlvIndicator.setBackgroundColor(getResources().getColor(R.color.colorAccent, null));
 
-        if (salepoint.getSalepointType() == Constants.TYPE_CAFE || salepoint.getSalepointType() == Constants.TYPE_FASTFOOD) {
-            return true;
-        }
+//        if (salepoint.getSalepointType() == Constants.TYPE_CAFE || salepoint.getSalepointType() == Constants.TYPE_FASTFOOD) {
+//            return true;
+//        }
         return completd;
 
     }
@@ -1015,20 +1098,20 @@ public class SurveyHeadingMenu extends Fragment {
         if (fridge.getBarCode().length() == 0) {
             return false;
         }
-        if (fridge.getFridgeState() == 0) {
-            return false;
-        }
-        if (fridge.getFridgeState() == 2) {
-            if (fridge.getBreakDownType() == 0)
-                return false;
-        }
+//        if (fridge.getFridgeState() == 0) {
+//            return false;
+//        }
+//        if (fridge.getFridgeState() == 2) {
+//            if (fridge.getBreakDownType() == 0)
+//                return false;
+//        }
         if (fridge.getIsOn() < 0) {
 
             return false;
         }
         if (fridge.getIsOn() == 1) {
-            if (fridge.getFridgeTemp().length() == 0)
-                return false;
+//            if (fridge.getFridgeTemp().length() == 0)
+//                return false;
         }
         if (fridge.getExternal() == -1) {
 
@@ -1038,6 +1121,12 @@ public class SurveyHeadingMenu extends Fragment {
         Photo photo = realm.where(Photo.class).equalTo("TypeID", fridge.getMobileId()).and().equalTo("Type", Constants.IMG_FRIDGE).findFirst();
         if (photo == null) {
             return false;
+        }
+
+
+        Photo photo2 = realm.where(Photo.class).equalTo("TypeID", fridge.getMobileId()).and().equalTo("Type", Constants.IMG_FRIDGE_BARCODE).findFirst();
+        if (photo2 == null) {
+            valid = false;
         }
 
         return valid;
@@ -1079,7 +1168,7 @@ public class SurveyHeadingMenu extends Fragment {
                         salepoint.setMobileModificationDate(currentMilis);
                         if (salepoint.getFinishedMobileDate() == 0)
                             salepoint.setFinishedMobileDate(currentMilis);
-
+                        salepoint.setSynced(false);
                         realm.insertOrUpdate(salepoint);
                         session.clearSalepoint();
                         getActivity().finish();
@@ -1097,7 +1186,8 @@ public class SurveyHeadingMenu extends Fragment {
                 salepoint.setMobileModificationDate(currentMilis);
                 if (salepoint.getFinishedMobileDate() == 0)
                     salepoint.setFinishedMobileDate(currentMilis);
-
+                salepoint.setSynced(false);
+                salepoint.setUser_id(user.getId());
                 realm.insertOrUpdate(salepoint);
                 session.clearSalepoint();
                 getActivity().finish();
@@ -1136,12 +1226,12 @@ public class SurveyHeadingMenu extends Fragment {
 
 
                 eplv = true;
-                iplv = true;
+                iplv = checkInternalPlv();
                 audit = true;
 
             } else if (salepoint.getSalepointType() == Constants.TYPE_RESTAURANT || salepoint.getSalepointType() == Constants.TYPE_FASTFOOD || salepoint.getSalepointType() == Constants.TYPE_CAFE) {
                 eplv = checkExternalPlv();
-                iplv = true;
+                iplv = checkInternalPlv();
                 audit = checkAudit();
             } else {
 

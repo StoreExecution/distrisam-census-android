@@ -195,6 +195,7 @@
                             android:textColor="@color/colorPrimary"
                             android:textSize="19sp"
                             android:textStyle="bold"
+                            android:visibility="gone"
 
 
                             />
@@ -206,6 +207,7 @@
                             android:layout_margin="10dp"
                             android:background="@drawable/outline"
                             android:entries="@array/fridgeState"
+                            android:visibility="gone"
                             android:padding="15dp" />
 
 
@@ -217,6 +219,7 @@
                             android:textColor="@color/colorPrimary"
                             android:textSize="19sp"
                             android:textStyle="bold"
+                            android:visibility="gone"
 
                             />
 
@@ -228,6 +231,7 @@
                             android:layout_margin="10dp"
                             android:background="@drawable/outline"
                             android:entries="@array/BreakDownType"
+                            android:visibility="gone"
                             android:padding="15dp" />
 
                         <TextView
@@ -280,7 +284,7 @@
                             android:textColor="@color/colorPrimary"
                             android:textSize="19sp"
                             android:textStyle="bold"
-
+                            android:visibility="gone"
 
                             />
 
@@ -296,6 +300,7 @@
                             android:inputType="numberDecimal"
                             android:padding="10dp"
                             android:textColorHint="#757575"
+                            android:visibility="gone"
 
                             />
 
@@ -335,6 +340,7 @@
 
 
                         <TextView
+                            android:id="@+id/tvPhoto"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="5dp"
@@ -402,6 +408,7 @@
                         android:visibility="gone">
 
                         <TextView
+                            android:id="@+id/tvPhotoBarcode"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Photo emplacement code barres frigo"
@@ -465,6 +472,7 @@
                             android:background="@color/colorPrimary"
                             android:paddingHorizontal="75dp"
                             android:text="Lier le code bar"
+                            android:drawableLeft="@drawable/ic_action_barcode_1"
                             android:textColor="#fff" />
 
                         <Button

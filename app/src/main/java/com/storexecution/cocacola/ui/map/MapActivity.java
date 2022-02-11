@@ -2,7 +2,9 @@ package com.storexecution.cocacola.ui.map;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.animation.Animator;
 import android.annotation.SuppressLint;
@@ -21,7 +23,9 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.os.StrictMode;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -35,8 +39,22 @@ import android.widget.TextView;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.liulishuo.filedownloader.BaseDownloadTask;
+import com.liulishuo.filedownloader.FileDownloadListener;
+import com.liulishuo.filedownloader.FileDownloader;
+import com.liulishuo.filedownloader.util.FileDownloadUtils;
 import com.nbsp.materialfilepicker.MaterialFilePicker;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
+import com.storexecution.cocacola.adapter.SectorAdapter;
+import com.storexecution.cocacola.event.DownloadFinishedEvent;
+import com.storexecution.cocacola.event.LocationUpdatedEvent;
+import com.storexecution.cocacola.event.MockPosition;
+import com.storexecution.cocacola.model.Filter;
+import com.storexecution.cocacola.model.Sector;
+import com.storexecution.cocacola.network.ApiEndpointInterface;
+import com.storexecution.cocacola.network.RetrofitClient;
+import com.storexecution.cocacola.service.LocationUpdatesService;
 import com.storexecution.cocacola.ui.newpos.NewSurveyActivity;
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.adapter.SalepointAdapter;
@@ -46,6 +64,7 @@ import com.storexecution.cocacola.model.Photo;
 import com.storexecution.cocacola.model.Salepoint;
 import com.storexecution.cocacola.model.Suivi;
 import com.storexecution.cocacola.model.User;
+import com.storexecution.cocacola.ui.rtm.RTMMapActivity;
 import com.storexecution.cocacola.util.Base64Util;
 import com.storexecution.cocacola.util.Constants;
 import com.storexecution.cocacola.util.DateUtils;
@@ -54,6 +73,8 @@ import com.storexecution.cocacola.util.SalepointTypeUtils;
 import com.storexecution.cocacola.util.Session;
 import com.storexecution.cocacola.util.SharedPrefUtil;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.bonuspack.kml.KmlFeature;
@@ -71,8 +92,10 @@ import org.osmdroid.views.overlay.Polyline;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -84,6 +107,9 @@ import es.dmoral.toasty.Toasty;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.Sort;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MapActivity extends AppCompatActivity implements Marker.OnMarkerClickListener, LocationListener {
     /**
@@ -105,6 +131,8 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
     TextView title;
     @BindView(R.id.btAll)
     Button btAll;
+    @BindView(R.id.btSyncSectors)
+    Button btSyncSectors;
     @BindView(R.id.btEdited)
     Button btEdited;
     @BindView(R.id.btEdite)
@@ -150,14 +178,16 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
     Button btClosing;
     @BindView(R.id.btRoute)
     Button btRoute;
-    @BindView(R.id.btPP)
-    Button btPP;
+    @BindView(R.id.btActivityChange)
+    Button btActivityChange;
     @BindView(R.id.btDN)
     Button btDN;
     @BindView(R.id.btEdit)
     Button btEdit;
     @BindView(R.id.ivCancel)
     ImageView ivCancel;
+    @BindView(R.id.lvDrawer)
+    RecyclerView lvDrawer;
 
     @BindView(R.id.workDetails)
     CardView workDetails;
@@ -179,24 +209,31 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
     LocationManager locationManager;
     User user;
     SweetAlertDialog pDialog;
+    RealmList<Sector> sectors;
 
-    /**
-     * ButterKnife Code
-     **/
-    androidx.recyclerview.widget.RecyclerView lvDrawer;
+    Gson gson;
+    Map<String, String> headers;
+    SharedPrefUtil sharedPrefUtil;
+    SectorAdapter sectorAdapter;
+    int selectedSectorID = 0;
 
-    /**
-     * ButterKnife Code
-     **/
+
+    ApiEndpointInterface service;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         ButterKnife.bind(this);
+
         realm = Realm.getDefaultInstance();
-        Configuration.getInstance().setUserAgentValue("Store Execution/2");
-
-
+        Configuration.getInstance().setUserAgentValue("Store Execution/3");
+        gson = new Gson();
+        service = RetrofitClient.getRetrofitInstance().create(ApiEndpointInterface.class);
+        sharedPrefUtil = SharedPrefUtil.getInstance(getApplicationContext());
+        headers = new HashMap<>();
+        headers.put("Authorization", "bearer " + sharedPrefUtil.getString(Constants.ACCESS_TOKEN, ""));
+        user = realm.where(User.class).findFirst();
         org.osmdroid.config.IConfigurationProvider osmConf = org.osmdroid.config.Configuration.getInstance();
         File basePath = new File(getCacheDir().getAbsolutePath(), "osmdroid");
         osmConf.setOsmdroidBasePath(basePath);
@@ -204,11 +241,48 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
         osmConf.setOsmdroidTileCache(tileCache);
         sharedPreferences = SharedPrefUtil.getInstance(this);
         salepoints = new RealmList<>();
+        sectors = new RealmList<>();
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        selectedSectorID = sharedPreferences.getInt("selectedSectorID", 0);
+        sectors.addAll(realm.where(Sector.class).equalTo("user_id", user.getId()).and().equalTo("day", DateUtils.todayDate()).findAll());
+        sectorAdapter = new SectorAdapter(this, sectors, selectedSectorID, new RecyclerItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                if (sectors.get(position).getOpen() == 1) {
+                    if (sectors.get(position).getLocalFile() != null && sectors.get(position).getLocalFile().length() > 0) {
+                        sharedPreferences.putInt("selectedSectorID", sectors.get(position).getId());
+                        sectorAdapter.setSelectedId(sectors.get(position).getId());
+                        sectorAdapter.notifyDataSetChanged();
+                        sharedPreferences.putString("paths", sectors.get(position).getLocalFile());
+                        loadSector(sectors.get(position).getLocalFile());
+                    } else {
+
+                        pDialog = new SweetAlertDialog(MapActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+                        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                        pDialog.setTitleText("Téléchargement Secteurs");
+                        pDialog.setCancelable(false);
+                        pDialog.show();
+                        Toasty.info(MapActivity.this, "Téléchargement du secteur", 4000).show();
+                        RealmList<Sector> toDownload = new RealmList<>();
+                        toDownload.add(sectors.get(position));
+                        downloadSectors(toDownload, 0);
+                    }
+                } else {
+                    Toasty.warning(MapActivity.this, "Ce secteur n'est pas encore actif", 3000).show();
+                }
+            }
+        });
+        lvDrawer.setLayoutManager(new LinearLayoutManager(this));
+
+        lvDrawer.setAdapter(sectorAdapter);
+
+
         salepoints.addAll(realm.where(Salepoint.class).sort("mobileModificationDate", Sort.DESCENDING).findAll());
         workDetails.setVisibility(View.INVISIBLE);
         //mvMap.setTileSource(TileSourceFactory.MAPNIK);
         currentTiles = Constants.TILES_BING;
-        user = realm.where(User.class).findFirst();
+
         BingMapTileSource.retrieveBingKey(MapActivity.this);
         setTileSource();
         mvMap.setBuiltInZoomControls(true);
@@ -284,6 +358,53 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
 
         onSalepoint(markers.indexOf(marker));
         return true;
+    }
+
+    @OnClick(R.id.btSyncSectors)
+    public void syncSector() {
+
+        SweetAlertDialog sweetAlertDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+        sweetAlertDialog.setTitle("Synchronisation ... ");
+        sweetAlertDialog.show();
+        Filter filter = new Filter();
+        filter.setUserId(user.getId());
+        filter.setDay(DateUtils.todayDate());
+        service.fetchSectors(headers, gson.toJson(filter)).enqueue(new Callback<ArrayList<Sector>>() {
+            @Override
+            public void onResponse(Call<ArrayList<Sector>> call, Response<ArrayList<Sector>> response) {
+                Log.e("call", call.request().url().toString());
+
+                if (response.code() == 200 && response.body() != null) {
+                    Log.e("size", response.body().size() + " ");
+                    realm.beginTransaction();
+                    realm.insertOrUpdate(response.body());
+                    realm.commitTransaction();
+                    sectors.clear();
+                    sectors.addAll(realm.where(Sector.class).equalTo("user_id", user.getId()).and().equalTo("day", DateUtils.todayDate()).findAll());
+                    ;
+                    sectorAdapter.notifyDataSetChanged();
+                    int index = 0;
+                    pDialog = new SweetAlertDialog(MapActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+                    pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                    pDialog.setTitleText("Téléchargement Secteurs");
+                    pDialog.setCancelable(false);
+                    pDialog.show();
+                    downloadSectors(sectors, 0);
+                }
+                sweetAlertDialog.dismiss();
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<Sector>> call, Throwable t) {
+                sweetAlertDialog.dismiss();
+                sectorAdapter.notifyDataSetChanged();
+                Toasty.error(MapActivity.this, "Erreur de connexion", 3000).show();
+
+
+            }
+        });
+
+
     }
 
 
@@ -427,7 +548,7 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
 
                 Photo photo = realm.where(Photo.class).equalTo("TypeID", currentSalepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_POS).findFirst();
                 if (photo != null)
-                    iv.setImageBitmap(Base64Util.Base64ToBitmap(photo.getImage(), 4));
+                    iv.setImageBitmap(Base64Util.Base64ToBitmap(photo.getImage(), 2));
 
 
             }
@@ -480,12 +601,46 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
             pDialog.setCancelable(false);
             pDialog.show();
             // btgps.showLoading();
-            gpsLocal();
+//            gpsLocal();
+            if (!EventBus.getDefault().isRegistered(this)) {
+                EventBus.getDefault().register(this);
+            }
 
         } else {
 
             Toasty.error(MapActivity.this, "Veuillez activer votre GPS", 5000).show();
         }
+    }
+
+    @Subscribe
+    public void onEvent(LocationUpdatedEvent event) {
+        EventBus.getDefault().unregister(this);
+        if (pDialog != null && pDialog.isShowing())
+            pDialog.dismiss();
+        userMarker = new Marker(mvMap);
+        GeoPoint geo = new GeoPoint(event.getLocation().getLatitude(), event.getLocation().getLongitude());
+        userMarker.setIcon(getResources().getDrawable(R.drawable.person_marker));
+        userMarker.setPosition(geo);
+        mvMap.getOverlays().add(userMarker);
+        // mvMap.getController().setCenter(userMarker.getPosition());
+        double zoomlevel = mvMap.getZoomLevelDouble();
+        if (mvMap.getZoomLevelDouble() < 18.0)
+            zoomlevel = 18.0;
+
+
+        mvMap.getController().animateTo(userMarker.getPosition(), zoomlevel, 1300l);
+
+    }
+
+    @Subscribe
+    public void onEvent(MockPosition event) {
+        EventBus.getDefault().unregister(this);
+        if (pDialog != null && pDialog.isShowing())
+            pDialog.dismiss();
+
+        Toasty.error(this, "Fausse position detecté", Toasty.LENGTH_LONG).show();
+
+
     }
 
 
@@ -533,7 +688,7 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
             // mvMap.setTileSource(TileSourceFactory.USGS_TOPO);
 
             mvMap.setTileSource(TileSourceFactory.MAPNIK);
-               mvMap.setMaxZoomLevel(22.0);
+            mvMap.setMaxZoomLevel(22.0);
 
             currentTiles = Constants.TILES_DEFAULT;
         }
@@ -542,8 +697,14 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
 
     int FILE_PICKER_REQUEST_CODE = 9381;
 
+
     @OnClick(R.id.fabSector)
-    public void sector() {
+    public void open() {
+        drawerLayout.openDrawer(Gravity.RIGHT, true);
+    }
+
+
+    public void sector2() {
 
         String external = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).getPath();
 
@@ -602,7 +763,7 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
 //        getRealPathUtil.getRealPathFromURI(this, uri);
 //        String selectedFilePath = FilePath.getPath(getActivity(), uri);
         //final File file = new File(realPath);
-        sharedPreferences.putString("paths", realPath);
+
 
         // The temp file could be whatever you want
         loadSector(realPath);
@@ -613,6 +774,9 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
     FolderOverlay kmlOverlay;
 
     public void loadSector(String path) {
+        Log.e("log", " " + path);
+        // Toasty.warning(MapActivity.this, "loadSector", 2000).show();
+
         KmlDocument kmlDocument = new KmlDocument();
         try {
 
@@ -678,8 +842,11 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
             realm.commitTransaction();
 
 
-            if (pDialog != null && pDialog.isShowing())
+            if (pDialog != null && pDialog.isShowing()) {
+
                 pDialog.dismiss();
+
+            }
 
 
             // Suivi suivi = realm.where(Suivi.class).sort("milis", Sort.DESCENDING).findFirst();
@@ -712,5 +879,77 @@ public class MapActivity extends AppCompatActivity implements Marker.OnMarkerCli
     @Override
     public void onProviderDisabled(String s) {
 
+    }
+
+    private void downloadSectors(RealmList<Sector> sectors, int position) {
+        Sector sector;
+        if (sectors.size() > position) {
+            sector = sectors.get(position);
+
+            String savePath = FileDownloadUtils.getDefaultSaveRootPath() + File.separator + "cocacola" + File.separator + "sector" + File.separator;
+            Log.e("Path", "Downloading ...");
+
+            FileDownloader.getImpl().create(Constants.URL_SECTOR + sector.getFileLink())
+                    .setPath(savePath + sector.getFileLink())
+                    .setAutoRetryTimes(20)
+
+                    .setListener(new FileDownloadListener() {
+                        @Override
+                        protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                            Log.e("Downloading", "pending");
+                        }
+
+                        @Override
+                        protected void progress(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+
+                        }
+
+                        @Override
+                        protected void completed(BaseDownloadTask task) {
+                            Log.e("Downloading", "Path : " + task.getTargetFilePath() + " ");
+                            realm.beginTransaction();
+                            sectors.get(position).setLocalFile(task.getTargetFilePath());
+                            realm.insertOrUpdate(sector);
+                            sector.setLocalFile(task.getTargetFilePath());
+                            realm.commitTransaction();
+
+                            downloadSectors(sectors, (position + 1));
+                        }
+
+                        @Override
+                        protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                            Log.e("Downloading", "paused");
+                        }
+
+                        @Override
+                        protected void error(BaseDownloadTask task, Throwable e) {
+                            Log.e("Downloading", "Error");
+                            e.printStackTrace();
+                            Toasty.error(MapActivity.this, "Erreur de connexion", 3000).show();
+
+                        }
+
+                        @Override
+                        protected void warn(BaseDownloadTask task) {
+
+                            Log.e("Downloading", "Warn");
+                            task.getErrorCause().printStackTrace();
+                        }
+                    }).start();
+        } else {
+            if (pDialog != null && pDialog.isShowing())
+                pDialog.dismiss();
+            Toasty.success(MapActivity.this, "Les secteurs ont été téléchargés", 3000).show();
+
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        if (pDialog != null && pDialog.isShowing())
+            pDialog.dismiss();
+        super.onDestroy();
     }
 }

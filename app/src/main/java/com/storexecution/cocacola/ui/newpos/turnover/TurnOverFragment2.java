@@ -14,6 +14,7 @@ import android.widget.ImageView;
 
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.model.Salepoint;
+import com.storexecution.cocacola.util.Constants;
 import com.storexecution.cocacola.util.Session;
 
 import butterknife.BindView;
@@ -255,15 +256,15 @@ public class TurnOverFragment2 extends Fragment {
             int count = Integer.parseInt(etRouibaLow.getText().toString());
             salepoint.setPurchaseRouibaHigh(String.valueOf(count * 2));
         }
-       // salepoint.setPurchaseRouibaHigh(etRouibaHigh.getText().toString());
+        // salepoint.setPurchaseRouibaHigh(etRouibaHigh.getText().toString());
 
-        if (etRouibaLow.getText().toString().length() > 0) {
-        salepoint.setPurchaseRouibaPetLow(etRouibaPetLow.getText().toString());
+        if (etRouibaPetLow.getText().toString().length() > 0) {
+            salepoint.setPurchaseRouibaPetLow(etRouibaPetLow.getText().toString());
             int count = Integer.parseInt(etRouibaPetLow.getText().toString());
             salepoint.setPurchaseRouibaPetHigh(String.valueOf(count * 2));
 
         }
-      //  salepoint.setPurchaseRouibaPetHigh(etRouibaPetPetHigh.getText().toString());
+        //  salepoint.setPurchaseRouibaPetHigh(etRouibaPetPetHigh.getText().toString());
 
         salepoint.setDnRouiba(cbRouiba.isChecked());
         salepoint.setDnRouibaPet(cbRouibapet.isChecked());
@@ -274,13 +275,16 @@ public class TurnOverFragment2 extends Fragment {
 
     @OnClick(R.id.fabNext)
     public void save() {
-        TurnOverFragment3 fragment = new TurnOverFragment3();
-        setData();
-        getActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content, fragment, "storeInfo")
-                .addToBackStack(getClass().getName())
-                .commit();
+
+        if (checkLimits()) {
+            TurnOverFragment3 fragment = new TurnOverFragment3();
+            setData();
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content, fragment, "storeInfo")
+                    .addToBackStack(getClass().getName())
+                    .commit();
+        }
 
 
     }
@@ -292,4 +296,355 @@ public class TurnOverFragment2 extends Fragment {
 
 
     }
+
+
+    public boolean checkLimits() {
+        boolean valid = true;
+        switch (salepoint.getSalepointType()) {
+
+            case Constants.TYPE_AG:
+                switch (salepoint.getSalepointZone()) {
+
+                    case Constants.ZONE_A:
+
+                        if (etRouibaLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaLow.getText().toString()) >= 80) {
+                            etRouibaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaHigh.getText().toString()) >= 160) {
+                            etRouibaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetLow.getText().toString()) >= 100) {
+                            etRouibaPetLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetPetHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetPetHigh.getText().toString()) >= 200) {
+                            etRouibaPetPetHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        if (etRouibaLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaLow.getText().toString()) >= 60) {
+                            etRouibaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaHigh.getText().toString()) >= 120) {
+                            etRouibaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetLow.getText().toString()) >= 70) {
+                            etRouibaPetLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetPetHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetPetHigh.getText().toString()) >= 140) {
+                            etRouibaPetPetHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+
+                        if (etRouibaLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaLow.getText().toString()) >= 40) {
+                            etRouibaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaHigh.getText().toString()) >= 80) {
+                            etRouibaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetLow.getText().toString()) >= 50) {
+                            etRouibaPetLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetPetHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetPetHigh.getText().toString()) >= 100) {
+                            etRouibaPetPetHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                }
+
+
+                break;
+            case Constants.TYPE_SUP:
+
+                switch (salepoint.getSalepointZone()) {
+
+                    case Constants.ZONE_A:
+
+
+                        if (etRouibaLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaLow.getText().toString()) >= 80) {
+                            etRouibaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaHigh.getText().toString()) >= 160) {
+                            etRouibaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetLow.getText().toString()) >= 80) {
+                            etRouibaPetLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetPetHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetPetHigh.getText().toString()) >= 160) {
+                            etRouibaPetPetHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+
+                        if (etRouibaLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaLow.getText().toString()) >= 60) {
+                            etRouibaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaHigh.getText().toString()) >= 120) {
+                            etRouibaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetLow.getText().toString()) >= 60) {
+                            etRouibaPetLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetPetHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetPetHigh.getText().toString()) >= 120) {
+                            etRouibaPetPetHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+
+                        if (etRouibaLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaLow.getText().toString()) >= 40) {
+                            etRouibaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaHigh.getText().toString()) >= 80) {
+                            etRouibaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetLow.getText().toString()) >= 40) {
+                            etRouibaPetLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetPetHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetPetHigh.getText().toString()) >= 80) {
+                            etRouibaPetPetHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                }
+
+
+                break;
+            case Constants.TYPE_CAFE:
+
+                switch (salepoint.getSalepointZone()) {
+
+                    case Constants.ZONE_A:
+
+
+                        if (etRouibaLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaLow.getText().toString()) >= 80) {
+                            etRouibaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaHigh.getText().toString()) >= 160) {
+                            etRouibaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetLow.getText().toString()) >= 80) {
+                            etRouibaPetLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetPetHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetPetHigh.getText().toString()) >= 160) {
+                            etRouibaPetPetHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                    case Constants.ZONE_B:
+                        if (etRouibaLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaLow.getText().toString()) >= 60) {
+                            etRouibaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaHigh.getText().toString()) >= 120) {
+                            etRouibaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetLow.getText().toString()) >= 60) {
+                            etRouibaPetLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetPetHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetPetHigh.getText().toString()) >= 120) {
+                            etRouibaPetPetHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                    case Constants.ZONE_C:
+                        if (etRouibaLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaLow.getText().toString()) >= 40) {
+                            etRouibaLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaHigh.getText().toString()) >= 80) {
+                            etRouibaHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetLow.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetLow.getText().toString()) >= 40) {
+                            etRouibaPetLow.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        if (etRouibaPetPetHigh.getText().toString().length() > 0 && Integer.valueOf(etRouibaPetPetHigh.getText().toString()) >= 80) {
+                            etRouibaPetPetHigh.setError("veuillez verifier ce chiffre");
+                            valid = false;
+                        }
+
+                        break;
+
+                }
+
+                break;
+            case Constants.TYPE_FASTFOOD:
+
+
+                switch (salepoint.getSalepointZone()) {
+
+                    case Constants.ZONE_A:
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+                        break;
+
+                }
+
+                break;
+            case Constants.TYPE_RESTAURANT:
+
+                switch (salepoint.getSalepointZone()) {
+
+                    case Constants.ZONE_A:
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+                        break;
+
+                }
+
+
+                break;
+            case Constants.TYPE_PATISSERIE:
+
+                switch (salepoint.getSalepointZone()) {
+
+                    case Constants.ZONE_A:
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+                        break;
+
+                }
+
+                break;
+            case Constants.TYPE_BT:
+                switch (salepoint.getSalepointZone()) {
+
+                    case Constants.ZONE_A:
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+                        break;
+
+                }
+
+                break;
+            case Constants.TYPE_THE:
+
+                switch (salepoint.getSalepointZone()) {
+
+                    case Constants.ZONE_A:
+
+                        break;
+
+                    case Constants.ZONE_B:
+
+                        break;
+
+                    case Constants.ZONE_C:
+
+                        break;
+
+                }
+
+
+                break;
+        }
+
+        return valid;
+
+
+    }
+
 }

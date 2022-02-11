@@ -83,7 +83,7 @@ public class FridgeBarCodePhoto extends DialogFragment {
         realm = Realm.getDefaultInstance();
         etBarCode.setText(salepoint.getBarcode());
 
-        photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_FRIDGE_BARCODE).findFirst();
+        photo = realm.where(Photo.class).equalTo("TypeID", fridge.getMobileId()).and().equalTo("Type", Constants.IMG_FRIDGE_BARCODE).findFirst();
         if (photo != null)
             ivPhoto.setImageBitmap(Base64Util.Base64ToBitmap(photo.getImage()));
 

@@ -21,20 +21,27 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.storexecution.cocacola.BuildConfig;
 import com.storexecution.cocacola.PdfViewer;
 import com.storexecution.cocacola.R;
+import com.storexecution.cocacola.model.Notification;
 import com.storexecution.cocacola.model.Photo;
 import com.storexecution.cocacola.model.Salepoint;
 import com.storexecution.cocacola.model.TagElement;
+import com.storexecution.cocacola.model.User;
+import com.storexecution.cocacola.model.ValidationConditon;
 import com.storexecution.cocacola.util.Base64Util;
 import com.storexecution.cocacola.util.Constants;
+import com.storexecution.cocacola.util.DateUtils;
 import com.storexecution.cocacola.util.GsonUtils;
 import com.storexecution.cocacola.util.ImageLoad;
 import com.storexecution.cocacola.util.PrimaryKeyFactory;
@@ -43,6 +50,7 @@ import com.storexecution.cocacola.util.UtilBase64;
 
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
@@ -52,6 +60,7 @@ import butterknife.OnClick;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import co.lujun.androidtagview.TagContainerLayout;
 import co.lujun.androidtagview.TagView;
+import es.dmoral.toasty.Toasty;
 import io.realm.Realm;
 import io.realm.RealmList;
 
@@ -83,6 +92,8 @@ public class ExternalPlvFragment extends Fragment {
     Button tgAddWindow;
     @BindView(R.id.ivPhoto)
     ImageView ivPhoto;
+    @BindView(R.id.tvExternalPlv)
+    TextView tvExternalPlv;
 
 
     /**
@@ -101,6 +112,8 @@ public class ExternalPlvFragment extends Fragment {
     Session session;
     Realm realm;
     Photo photo;
+    ArrayList<String> brands;
+    User user;
 
     public ExternalPlvFragment() {
         // Required empty public constructor
@@ -116,12 +129,21 @@ public class ExternalPlvFragment extends Fragment {
 
         ButterKnife.bind(this, v);
         realm = Realm.getDefaultInstance();
+        user = realm.where(User.class).findFirst();
         session = new Session(getActivity().getApplicationContext());
         salepoint = session.getSalepoint();
         tindas = new RealmList<>();
         ears = new RealmList<>();
         potence = new RealmList<>();
         windows = new RealmList<>();
+
+        brands = new ArrayList<>();
+        brands.add("Marque");
+        brands.add("Coca-Cola");
+        brands.add("Pepsi");
+        brands.add("Hamoud boualem");
+        brands.add("Autre Boisson gazeuse");
+        brands.add("Autre");
         realm = Realm.getDefaultInstance();
         tindas.addAll(salepoint.getTindas());
         ears.addAll(salepoint.getEars());
@@ -134,7 +156,7 @@ public class ExternalPlvFragment extends Fragment {
         setPotanceTags();
         setWindowTags();
         settindaTags();
-
+        checkNotification();
 
         tgEar.setOnTagClickListener(new TagView.OnTagClickListener() {
             @Override
@@ -287,7 +309,11 @@ public class ExternalPlvFragment extends Fragment {
 
 
         final EditText name = new EditText(getActivity());
+        final Spinner spinner = new Spinner(getActivity());
         final EditText quantity = new EditText(getActivity());
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getContext(), android.R.layout.simple_list_item_1, brands);
+        spinner.setAdapter(adapter);
         name.setGravity(Gravity.CENTER);
         name.setHint("Marque");
         quantity.setHint("Nombre");
@@ -303,14 +329,16 @@ public class ExternalPlvFragment extends Fragment {
 
                 String nameText = name.getText().toString();
                 String quantityText = quantity.getText().toString().trim();
-                if (nameText.length() > 0 && quantityText.length() > 0 && Integer.valueOf(quantityText) > 0) {
-                    tagContainerLayout.addTag(name.getText().toString() + " : " + Integer.valueOf(quantityText));
-                    tagElements.add(new TagElement(nameText, Integer.valueOf(quantityText)));
+                if (spinner.getSelectedItemPosition() > 0&& quantityText.length() > 0 && Integer.valueOf(quantityText) > 0) {
+                    tagContainerLayout.addTag(spinner.getSelectedItem().toString() + " : " + Integer.valueOf(quantityText));
+                    tagElements.add(new TagElement(spinner.getSelectedItem().toString(), Integer.valueOf(quantityText)));
                     // Log.e("taglistLength",tags.size()+" ");
 
-
+                    sweetAlertDialog.dismiss();
+                }else {
+                    Toasty.error(getActivity(), "Veillez remplir tous les champs", 5000).show();
                 }
-                sweetAlertDialog.dismiss();
+
             }
         });
         sweetAlertDialog.setCancelButton("Annuler", new SweetAlertDialog.OnSweetClickListener() {
@@ -327,7 +355,7 @@ public class ExternalPlvFragment extends Fragment {
         linearLayout.addView(quantity, index + 1);
 
         index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
-        linearLayout.addView(name, index + 1);
+        linearLayout.addView(spinner, index + 1);
 
     }
 
@@ -336,6 +364,16 @@ public class ExternalPlvFragment extends Fragment {
         TagElement tagElement = tagElements.get(position);
         final EditText name = new EditText(getActivity());
         final EditText quantity = new EditText(getActivity());
+        final Spinner spinner = new Spinner(getActivity());
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getContext(), android.R.layout.simple_list_item_1, brands);
+        spinner.setAdapter(adapter);
+
+        int elementindex = brands.indexOf(tagElement.getName());
+        if (elementindex != -1)
+            spinner.setSelection(elementindex);
+        else
+            spinner.setSelection(5);
         name.setGravity(Gravity.CENTER);
         name.setHint("Marque");
         name.setText(tagElement.getName());
@@ -356,22 +394,24 @@ public class ExternalPlvFragment extends Fragment {
         sweetAlertDialog.setConfirmButton("Oui", new SweetAlertDialog.OnSweetClickListener() {
             @Override
             public void onClick(SweetAlertDialog sweetAlertDialog) {
-                sweetAlertDialog.dismiss();
 
-                String nameText = name.getText().toString();
+
+                String nameText = spinner.getSelectedItem().toString();
                 String quantityText = quantity.getText().toString().trim();
-                if (nameText.length() > 0 && quantityText.length() > 0 && Integer.parseInt(quantityText) > 0) {
+                if (spinner.getSelectedItemPosition() > 0 && quantityText.length() > 0 && Integer.parseInt(quantityText) > 0) {
                     tagContainerLayout.removeTag(position);
-                    tagContainerLayout.addTag(name.getText().toString() + " : " + Integer.parseInt(quantityText));
+                    tagContainerLayout.addTag(spinner.getSelectedItem().toString() + " : " + Integer.parseInt(quantityText));
 
                     tagElements.remove(position);
-                    tagElements.add(new TagElement(nameText, Integer.parseInt(quantityText)));
+                    tagElements.add(new TagElement(spinner.getSelectedItem().toString() , Integer.parseInt(quantityText)));
 
                     // Log.e("taglistLength",tags.size()+" ");
 
-
+                    sweetAlertDialog.dismiss();
+                }else {
+                    Toasty.error(getActivity(), "Veillez remplir tous les champs", 5000).show();
                 }
-                sweetAlertDialog.dismiss();
+
             }
         });
         sweetAlertDialog.setCancelButton("Supprimer", new SweetAlertDialog.OnSweetClickListener() {
@@ -392,7 +432,7 @@ public class ExternalPlvFragment extends Fragment {
         linearLayout.addView(quantity, index + 1);
 
         index = linearLayout.indexOfChild(linearLayout.findViewById(R.id.content_text));
-        linearLayout.addView(name, index + 1);
+        linearLayout.addView(spinner, index + 1);
 
 
     }
@@ -455,10 +495,10 @@ public class ExternalPlvFragment extends Fragment {
     public Uri getOutputMediaFileUri(int type) {
 
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type));
+            return Uri.fromFile(ImageLoad.getOutputMediaFile3(type, salepoint.getMobile_id(), Constants.IMG_PLV_EXTERNAL));
         } else
 
-            return FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileprovider", ImageLoad.getOutputMediaFile(getContext(), type));
+            return FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".fileprovider", ImageLoad.getOutputMediaFile(getContext(), type, salepoint.getMobile_id(), Constants.IMG_PLV_EXTERNAL));
 
     }
 
@@ -526,12 +566,12 @@ public class ExternalPlvFragment extends Fragment {
             Canvas canvas = new Canvas(mutableBitmap);
             Paint paint = new Paint();
             paint.setColor(Color.YELLOW);
-            paint.setTextSize(24);
+            paint.setTextSize(60);
             paint.setTextAlign(Paint.Align.LEFT);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyy HH:mm:ss");
-            String currentDateandTime = sdf.format(new Date());
 
-            canvas.drawText("Date: " + currentDateandTime, 20, 35, paint);
+
+            canvas.drawText("Date: " + DateUtils.todayDateTime(), 35, 65, paint);
 
        /*     ivPlv.setImageResource(android.R.color.transparent);
             PicassoSingleton.with(getActivity())
@@ -541,17 +581,24 @@ public class ExternalPlvFragment extends Fragment {
                     .into(ivPlv);*/
             ivPhoto.setImageBitmap(mutableBitmap);
             String imageBase64 = UtilBase64.bitmapToBase64String(mutableBitmap);
+            photo = realm.where(Photo.class).equalTo("TypeID", salepoint.getMobile_id()).and().equalTo("Type", Constants.IMG_PLV_EXTERNAL).findFirst();
 
             // fridge.setPhotoFridge(imageBase64);
             realm.beginTransaction();
-            if (photo == null)
+            if (photo == null) {
+                Log.e("photoisnull", "photoisnull");
                 photo = realm.createObject(Photo.class, PrimaryKeyFactory.nextKey(Photo.class));
 
-            photo.setImageID("plv_" + UUID.randomUUID());
-            photo.setDate(System.currentTimeMillis() / 1000 + "");
-            photo.setTypeID(salepoint.getMobile_id());
+                photo.setImageID("plv_" + UUID.randomUUID());
+
+                photo.setTypeID(salepoint.getMobile_id());
+
+                photo.setType(Constants.IMG_PLV_EXTERNAL);
+            }
+            photo.setDate(DateUtils.todayDateTime() + "");
+            photo.setUser_id(user.getId());
             photo.setImage(imageBase64);
-            photo.setType(Constants.IMG_PLV_EXTERNAL);
+            photo.setSynced(false);
             realm.commitTransaction();
 
         } catch (NullPointerException e) {
@@ -570,6 +617,28 @@ public class ExternalPlvFragment extends Fragment {
         Intent intent = new Intent(getActivity(), PdfViewer.class);
         intent.putExtra("source", "plve");
         getActivity().startActivity(intent);
+    }
+
+
+    private void checkNotification() {
+        Notification notification;
+        if (salepoint.getNotificationId() != 0)
+            notification = realm.where(Notification.class).equalTo("id", salepoint.getNotificationId()).findFirst();
+        else
+            notification = null;
+        if (notification != null) {
+            for (ValidationConditon validationConditon : notification.getConditions()) {
+
+                if (validationConditon.getDataType().equals(Constants.IMG_PLV_EXTERNAL) || validationConditon.getDataType().equals(Constants.IMG_PLV_EXTERNAL2)) {
+                    tvExternalPlv.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.ic_action_warning, 0);
+                    Log.e("notification", validationConditon.getDataType() + " ");
+                }
+
+            }
+
+
+        }
+
     }
 
 }

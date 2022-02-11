@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.storexecution.cocacola.R;
 import com.storexecution.cocacola.model.Salepoint;
@@ -64,6 +66,12 @@ public class TurnOverFragment3 extends Fragment {
     EditText etJuicePetHigh;
     @BindView(R.id.btPlusJuicePetHigh)
     Button btPlusJuicePetHigh;
+    @BindView(R.id.rgWarmStock)
+    RadioGroup rgWarmStock;
+    @BindView(R.id.rbWarmStockYes)
+    RadioButton rbWarmStockYes;
+    @BindView(R.id.rbWarmStockNo)
+    RadioButton rbWarmStockNo;
 
     /**
      * ButterKnife Code
@@ -95,6 +103,11 @@ public class TurnOverFragment3 extends Fragment {
         etJuiceHigh.setText(salepoint.getPurchaseJuiceHigh());
         etJuicePetLow.setText(salepoint.getPurchaseJuicePetLow());
         etJuicePetHigh.setText(salepoint.getPurchaseJuicePetHigh());
+
+        if (salepoint.getHasWarmStock() == 1)
+            rbWarmStockYes.setChecked(true);
+        else if (salepoint.getHasWarmStock() == 0)
+            rbWarmStockNo.setChecked(true);
 
         btMinusWaterLow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -326,20 +339,18 @@ public class TurnOverFragment3 extends Fragment {
             salepoint.setPurchaseJuicePetHigh(String.valueOf(count * 2));
         }
        // salepoint.setPurchaseJuicePetHigh(etJuicePetHigh.getText().toString());
+
+        if (rbWarmStockYes.isChecked())
+            salepoint.setHasWarmStock(1);
+        else if (rbWarmStockNo.isChecked())
+            salepoint.setHasWarmStock(0);
         session.setSalepoint(salepoint);
     }
 
     @OnClick(R.id.fabNext)
     public void save() {
         setData();
-        TurnOverFragment4 fragment = new TurnOverFragment4();
-
-        getActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content, fragment, "storeInfo")
-                .addToBackStack(getClass().getName())
-                .commit();
-
+        getActivity().finish();
 
     }
 

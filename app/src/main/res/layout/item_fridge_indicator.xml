@@ -5,24 +5,43 @@
     android:layout_gravity="center"
     android:layout_marginHorizontal="2dp"
 
-    android:orientation="vertical">
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <ImageView
+            android:id="@+id/ivFridge"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+
+            android:src="@drawable/fridge_coca"
+
+
+            />
+
+        <FrameLayout
+            android:id="@+id/flIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_margin="0dp"
+            android:background="@color/colorAccent"
+            android:padding="0dp" />
+
+    </LinearLayout>
+
 
     <ImageView
-        android:id="@+id/ivFridge"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_gravity="center"
-
-        android:src="@drawable/fridge"
+        android:id="@+id/ivWarning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_action_warning"
 
 
         />
-    <FrameLayout
-        android:id="@+id/flIndicator"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:layout_margin="0dp"
-        android:background="@color/colorAccent"
-        android:padding="0dp" />
 
 </LinearLayout>

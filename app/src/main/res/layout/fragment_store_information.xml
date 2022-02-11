@@ -37,8 +37,7 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="60dp"
-            >
+            android:layout_marginBottom="60dp">
 
 
             <LinearLayout
@@ -118,6 +117,29 @@
                     android:hint="@string/ownerPhone"
                     android:inputType="phone" />
 
+
+                <!-- Start of Owner Phone -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre de façades"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/spFacade"
+                    android:layout_width="300dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginVertical="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/outline"
+                    android:entries="@array/facades"
+                    android:gravity="center"
+                    android:inputType="phone" />
+
                 <!-- END of Owner Phone -->
 
 
@@ -128,8 +150,8 @@
                     android:text="@string/managerName"
                     android:textColor="@color/colorAccent"
                     android:textSize="19sp"
-                    android:visibility="gone"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <EditText
                     android:id="@+id/etManagerName"
@@ -139,10 +161,10 @@
                     android:layout_marginVertical="20dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
-                    android:visibility="gone"
                     android:background="@drawable/edittext_background"
                     android:gravity="center"
-                    android:hint="@string/managerName" />
+                    android:hint="@string/managerName"
+                    android:visibility="gone" />
 
                 <!-- END of Owner Name -->
 
@@ -154,8 +176,8 @@
                     android:text="@string/ManagerPhone"
                     android:textColor="@color/colorAccent"
                     android:textSize="19sp"
-                    android:visibility="gone"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <EditText
                     android:id="@+id/etManagerPhone"
@@ -167,9 +189,9 @@
                     android:layout_marginBottom="10dp"
                     android:background="@drawable/edittext_background"
                     android:gravity="center"
-                    android:visibility="gone"
                     android:hint="@string/ManagerPhone"
-                    android:inputType="phone" />
+                    android:inputType="phone"
+                    android:visibility="gone" />
 
                 <!-- END of Owner Phone -->
                 <LinearLayout
