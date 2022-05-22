@@ -26,10 +26,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven {
-            url  "https://dl.bintray.com/bpappin/pappin"
 
-        }
         maven { url 'https://jitpack.io' }
         
     }
